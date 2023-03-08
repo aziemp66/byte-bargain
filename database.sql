@@ -1,5 +1,6 @@
 CREATE TABLE user (
     id_user INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    jenis_user ENUM('Penjual','Pembeli'),
     email VARCHAR(255) NOT NULL,
     nama VARCHAR(255) NOT NULL,
     alamat VARCHAR(255) NOT NULL,
