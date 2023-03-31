@@ -55,6 +55,7 @@ CREATE TABLE `bayar` (
     `total_bayar` FLOAT NOT NULL,
     `metode_pembayaran` VARCHAR(20) NOT NULL
 );
+
 ALTER TABLE `pembeli`
 ADD FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`);
 ALTER TABLE `penjual`
