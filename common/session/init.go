@@ -1,45 +1,52 @@
-package main
+package session
 
 import (
-	"net/http"
-
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
-// SessionHandler is a helper struct that provides methods for working with sessions
-type SessionHandler struct {
-	store sessions.Store
+// SessionManager is a helper struct that provides methods for managing sessions
+type SessionManager struct {
+	store   cookie.Store
+	options sessions.Options
 }
 
-// NewSessionHandler creates a new SessionHandler with the given store
-func NewSessionHandler(store sessions.Store) *SessionHandler {
-	return &SessionHandler{store}
+// NewSessionManager creates a new SessionManager with the given store and options
+func NewSessionManager(store sessions.Store, options sessions.Options) *SessionManager {
+	return &SessionManager{store, options}
 }
 
 // GetSession returns the session for the current request
-func (sh *SessionHandler) GetSession(c *gin.Context) sessions.Session {
+func (sm *SessionManager) GetSession(c *gin.Context) sessions.Session {
 	session := sessions.Default(c)
-	session.Options(sessions.Options{HttpOnly: true, MaxAge: 86400, SameSite: http.SameSiteStrictMode})
+	session.Options(sm.options)
 	return session
 }
 
-// IsAuthenticated returns true if the user is authenticated
-func (sh *SessionHandler) IsAuthenticated(c *gin.Context) bool {
-	session := sh.GetSession(c)
-	return session.Get("authenticated") != nil && session.Get("authenticated").(bool)
+// SetSessionValue sets a value in the session
+func (sm *SessionManager) SetSessionValue(c *gin.Context, key string, value interface{}) error {
+	session := sm.GetSession(c)
+	session.Set(key, value)
+	return session.Save()
 }
 
-// SetAuthenticated sets the authenticated status in the session
-func (sh *SessionHandler) SetAuthenticated(c *gin.Context) {
-	session := sh.GetSession(c)
-	session.Set("authenticated", true)
-	session.Save()
+// GetSessionValue retrieves a value from the session
+func (sm *SessionManager) GetSessionValue(c *gin.Context, key string) interface{} {
+	session := sm.GetSession(c)
+	return session.Get(key)
 }
 
-// ClearAuthenticated clears the authenticated status from the session
-func (sh *SessionHandler) ClearAuthenticated(c *gin.Context) {
-	session := sh.GetSession(c)
-	session.Delete("authenticated")
-	session.Save()
+// DeleteSessionValue removes a value from the session
+func (sm *SessionManager) DeleteSessionValue(c *gin.Context, key string) error {
+	session := sm.GetSession(c)
+	session.Delete(key)
+	return session.Save()
+}
+
+// ClearSession removes all values from the session
+func (sm *SessionManager) ClearSession(c *gin.Context) error {
+	session := sm.GetSession(c)
+	session.Clear()
+	return session.Save()
 }
