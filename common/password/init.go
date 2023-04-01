@@ -1,7 +1,7 @@
 package password
 
 import (
-	errorCommon "github.com/aziemp66/freya-be/common/error"
+	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	"golang.org/x/crypto/bcrypt"
 )
 

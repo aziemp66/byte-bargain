@@ -41,10 +41,3 @@ func NewUnauthorizedError(msg string) *ClientError {
 		Message: msg,
 	}
 }
-
-func NewInternalServerError(msg string) *ClientError {
-	return &ClientError{
-		Code:    http.StatusInternalServerError,
-		Message: msg,
-	}
-}
