@@ -1,16 +1,26 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+
+	envCommon "github.com/aziemp66/byte-bargain/common/env"
+	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
+)
 
 func main() {
-	router := gin.Default()
+	cfg := envCommon.LoadConfig()
 
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	httpServer := httpCommon.NewHTTPServer(cfg.GinMode)
 
-	router.Run() // listen and serve on
+	sessionManager := sessionCommon.NewSessionManager([]byte(cfg.AccessTokenKey))
 
+	httpServer.Router.Use(sessionManager.GetSessionHandler())
+	httpServer.Router.Use(httpCommon.MiddlewareErrorHandler())
+
+	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
+
+	if err != nil {
+		panic(err)
+	}
 }

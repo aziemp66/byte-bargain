@@ -1,26 +1,48 @@
 package session
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // SessionManager is a helper struct that provides methods for managing sessions
 type SessionManager struct {
-	store   cookie.Store
-	options sessions.Options
+	store  cookie.Store
+	option sessions.Options
 }
 
 // NewSessionManager creates a new SessionManager with the given store and options
-func NewSessionManager(store sessions.Store, options sessions.Options) *SessionManager {
-	return &SessionManager{store, options}
+func NewSessionManager(secretKey []byte) *SessionManager {
+	store := cookie.NewStore(secretKey)
+	option := sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	store.Options(option)
+
+	return &SessionManager{
+		store:  store,
+		option: option,
+	}
+}
+
+// UseSession adds the session middleware to the gin engine
+func (sm *SessionManager) GetSessionHandler() gin.HandlerFunc {
+	return sessions.Sessions(fmt.Sprintf("freya_session_%s", uuid.NewString()), sm.store)
 }
 
 // GetSession returns the session for the current request
 func (sm *SessionManager) GetSession(c *gin.Context) sessions.Session {
 	session := sessions.Default(c)
-	session.Options(sm.options)
+	session.Options(sm.option)
 	return session
 }
 
