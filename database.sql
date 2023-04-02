@@ -48,8 +48,8 @@ CREATE TABLE `pesanan_produk` (
     `id_pesanan` VARCHAR(36) NOT NULL,
     `qty` INT NOT NULL
 );
-CREATE TABLE `bayar` (
-    `id_bayar` VARCHAR(36) PRIMARY KEY,
+CREATE TABLE `pembayaran` (
+    `id_pembayaran` VARCHAR(36) PRIMARY KEY,
     `id_pesanan` VARCHAR(36) UNIQUE NOT NULL,
     `tgl_bayar` DATE NOT NULL,
     `total_bayar` FLOAT NOT NULL,
@@ -70,5 +70,5 @@ ALTER TABLE `pesanan_produk`
 ADD FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`);
 ALTER TABLE `pesanan_produk`
 ADD FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id_pesanan`);
-ALTER TABLE `bayar`
+ALTER TABLE `pembayaran`
 ADD FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id_pesanan`);

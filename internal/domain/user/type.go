@@ -25,6 +25,6 @@ type (
 		JenisKelamin   string    `json:"jenis_kelamin"`
 		KartuIdentitas string    `json:"kartu_identitas"`
 		RekeningBank   string    `json:"rekening_bank"`
-		NomoreRekening string    `json:"nomor_rekening"`
+		NomorRekening  int       `json:"nomor_rekening"`
 	}
 )
