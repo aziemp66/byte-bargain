@@ -4,27 +4,29 @@ import "time"
 
 type (
 	User struct {
-		IdUser   string `json:"id_user"`
+		UserID   string `json:"user_id"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	Pembeli struct {
-		IdPembeli    string    `json:"id_pembeli"`
-		Nama         string    `json:"nama"`
-		Alamat       string    `json:"alamat"`
-		TanggalLahir time.Time `json:"tanggal_lahir"`
-		NoHp         string    `json:"no_hp"`
-		JenisKelamin string    `json:"jenis_kelamin"`
+	Customer struct {
+		CustomerID  string    `json:"customer_id"`
+		UserID      string    `json:"user_id"`
+		Name        string    `json:"name"`
+		Address     string    `json:"address"`
+		BirthDate   time.Time `json:"birth_date"`
+		PhoneNumber string    `json:"phone_number"`
+		Gender      string    `json:"gender"`
 	}
-	Penjual struct {
-		IdPenjual      string    `json:"id_penjual"`
-		Nama           string    `json:"nama"`
-		Alamat         string    `json:"alamat"`
-		TanggalLahir   time.Time `json:"tanggal_lahir"`
-		NoHp           string    `json:"no_hp"`
-		JenisKelamin   string    `json:"jenis_kelamin"`
-		KartuIdentitas string    `json:"kartu_identitas"`
-		RekeningBank   string    `json:"rekening_bank"`
-		NomorRekening  int       `json:"nomor_rekening"`
+	Seller struct {
+		SellerID       string    `json:"seller_id"`
+		UserID         string    `json:"user_id"`
+		Name           string    `json:"name"`
+		Address        string    `json:"address"`
+		BirthDate      time.Time `json:"birth_date"`
+		PhoneNumber    string    `json:"phone_number"`
+		Gender         string    `json:"gender"`
+		IdentityNumber string    `json:"identity_number"`
+		BankName       string    `json:"bank_name"`
+		DebitNumber    string    `json:"debit_number"`
 	}
 )

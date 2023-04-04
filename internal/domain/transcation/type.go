@@ -3,34 +3,34 @@ package transcation
 import "time"
 
 type (
-	Produk struct {
-		IdProduk   string  `json:"id_produk"`
-		IdPenjual  string  `json:"id_penjual"`
-		NamaProduk string  `json:"nama_produk"`
-		Kategori   string  `json:"kategori"`
-		Deskripsi  string  `json:"deskripsi"`
-		Harga      float64 `json:"harga"`
-		Stok       int     `json:"stok"`
-		Berat      float64 `json:"berat"`
+	Product struct {
+		ProductID   string  `json:"product_id"`
+		SellerID    string  `json:"seller_id"`
+		ProductName string  `json:"product_name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
 	}
-	Pesanan struct {
-		IdPesanan      string    `json:"id_pesanan"`
-		IdPembeli      string    `json:"id_pembeli"`
-		IdProduk       string    `json:"id_produk"`
-		WaktuTransaksi time.Time `json:"waktu_transaksi"`
-		Status         string    `json:"status"`
+	Order struct {
+		OrderID    string `json:"order_id"`
+		CustomerID string `json:"customer_id"`
+		SellerID   string `json:"seller_id"`
+		OrderDate  string `json:"order_date"`
+		Status     string `json:"status"`
 	}
-	PesananProduk struct {
-		IdPesananProduk string `json:"id_pesanan_produk"`
-		IdPesanan       string `json:"id_pesanan"`
-		IdProduk        string `json:"id_produk"`
-		Jumlah          int    `json:"jumlah"`
+	OrderProduct struct {
+		OrderProductID string `json:"order_product_id"`
+		OrderID        string `json:"order_id"`
+		ProductID      string `json:"product_id"`
+		Quantity       int    `json:"quantity"`
 	}
-	Pembayaran struct {
-		IdPembayaran     string    `json:"id_pembayaran"`
-		IdPesanan        string    `json:"id_pesanan"`
-		TanggalBayar     time.Time `json:"waktu_bayar"`
-		TotalBayar       float64   `json:"total_bayar"`
-		MetodePembayaran string    `json:"metode_pembayaran"`
+	Payment struct {
+		PaymentID     string    `json:"payment_id"`
+		OrderID       string    `json:"order_id"`
+		PaymentDate   time.Time `json:"payment_date"`
+		TotalPayment  float64   `json:"total_payment"`
+		PaymentMethod string    `json:"payment_method"`
 	}
 )

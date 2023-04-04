@@ -39,7 +39,7 @@ CREATE TABLE `order` (
     `order_id` VARCHAR(36) PRIMARY KEY,
     `customer_id` VARCHAR(36) NOT NULL,
     `seller_id` VARCHAR(36) NOT NULL,
-    `transaction_date` DATETIME NOT NULL,
+    `order_date` DATETIME NOT NULL,
     `status` VARCHAR(225) NOT NULL
 );
 CREATE TABLE `order_product` (
