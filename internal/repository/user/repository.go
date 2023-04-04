@@ -9,7 +9,7 @@ type Repository interface {
 	GetUserByEmail(email string) (userDomain.User, error)
 	GetCustomerByID(customerID string) (userDomain.Customer, error)
 	GetSellerByID(sellerID string) (userDomain.Seller, error)
-	InsertUser(email, password string) error
+	InsertUser(email, password string) (userID string, Error error)
 	InsertCustomer(userID, name, address, phoneNumber, gender string) error
 	InsertSeller(userID, name, address, birthdate, phoneNumber, gender, identityNumber, bankName, debitNumber string) error
 	UpdateCustomerByID(userID, name, address, phoneNumber, gender string) error

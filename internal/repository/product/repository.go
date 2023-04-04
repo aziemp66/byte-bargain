@@ -1,14 +1,17 @@
 package order
 
 import (
-	orderDomain "github.com/aziemp66/byte-bargain/internal/domain/order"
+	productDomain "github.com/aziemp66/byte-bargain/internal/domain/product"
 )
 
 type Repository interface {
-	GetProductByID(productID string) (orderDomain.Product, error)
-	GetOrderByID(orderID string) (orderDomain.Order, error)
-	GetOrderProductByID(orderProductID string) (orderDomain.OrderProduct, error)
-	GetPaymentByID(paymentID string) (orderDomain.Payment, error)
+	GetRecommendedProduct() ([]productDomain.Product, error)
+	GetSearchedProduct(search string) ([]productDomain.Product, error)
+	GetAllProductBySellerID(sellerID string) ([]productDomain.Product, error)
+	GetProductByID(productID string) (productDomain.Product, error)
+	GetOrderByID(orderID string) (productDomain.Order, error)
+	GetOrderProductByID(orderProductID string) (productDomain.OrderProduct, error)
+	GetPaymentByID(paymentID string) (productDomain.Payment, error)
 	InsertProduct(sellerID, productName, price, stock, category, description, weight string) error
 	InsertOrder(customerID, sellerID, orderDate, status string) error
 	InsertOrderProduct(orderID, productID, quantity string) error

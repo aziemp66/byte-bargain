@@ -6,7 +6,7 @@ type (
 	Product struct {
 		ProductID   string
 		SellerID    string
-		ProductName string
+		Name        string
 		Price       float64
 		Stock       int
 		Category    string
