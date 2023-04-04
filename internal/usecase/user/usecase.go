@@ -12,7 +12,7 @@ type Usecase interface {
 	GetSellerByID(sellerID string) (httpCommon.Seller, error)
 	ForgotPassword(httpCommon.ForgotPassword) error
 	ResetPassword(id, token string) error
-	ChangePassword(id, oldPassword, newPassword string) error
+	ChangePassword(id string, ChangePassword httpCommon.ChangePassword) error
 	UpdateCustomerByID(customer httpCommon.Customer) error
 	UpdateSellerByID(seller httpCommon.Seller) error
 }

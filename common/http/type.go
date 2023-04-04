@@ -44,6 +44,11 @@ type (
 		Email string `json:"email"`
 	}
 
+	ChangePassword struct {
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+
 	Customer struct {
 		CustomerID  string `json:"customer_id"`
 		UserID      string `json:"user_id"`
