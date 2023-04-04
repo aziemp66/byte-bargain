@@ -11,16 +11,16 @@ type (
 	Customer struct {
 		CustomerID  string    `json:"customer_id"`
 		UserID      string    `json:"user_id"`
-		Name        string    `json:"name"`
-		Address     string    `json:"address"`
-		BirthDate   time.Time `json:"birth_date"`
-		PhoneNumber string    `json:"phone_number"`
-		Gender      string    `json:"gender"`
+		Name        string    `json:"name,omitempty"`
+		Address     string    `json:"address,omitempty"`
+		BirthDate   time.Time `json:"birth_date,omitempty"`
+		PhoneNumber string    `json:"phone_number,omitempty"`
+		Gender      string    `json:"gender,omitempty"`
 	}
 	Seller struct {
 		SellerID       string    `json:"seller_id"`
 		UserID         string    `json:"user_id"`
-		Name           string    `json:"name"`
+		Name           string    `json:"name,omitempty"`
 		Address        string    `json:"address"`
 		BirthDate      time.Time `json:"birth_date"`
 		PhoneNumber    string    `json:"phone_number"`
