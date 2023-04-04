@@ -1,18 +1,18 @@
 package user
 
 import (
-	UserDomain "github.com/aziemp66/byte-bargain/internal/domain/user"
+	userDomain "github.com/aziemp66/byte-bargain/internal/domain/user"
 )
 
 type Repository interface {
-	GetUserByID(userID string) (UserDomain.User, error)
-	GetUserByEmail(email string) (UserDomain.User, error)
-	GetCustomerByID(customerID string) (UserDomain.Customer, error)
-	GetSellerByID(sellerID string) (UserDomain.Seller, error)
-	InsertUser(user UserDomain.User) error
-	InsertCustomer(customer UserDomain.Customer) error
-	InsertSeller(seller UserDomain.Seller) error
-	UpdateCustomer(customer UserDomain.Customer) error
-	UpdateSeller(seller UserDomain.Seller) error
-	UpdateUserPassword(userID string, password string) error
+	GetUserByID(userID string) (userDomain.User, error)
+	GetUserByEmail(email string) (userDomain.User, error)
+	GetCustomerByID(customerID string) (userDomain.Customer, error)
+	GetSellerByID(sellerID string) (userDomain.Seller, error)
+	InsertUser(email, password string) error
+	InsertCustomer(userID, name, address, phoneNumber, gender string) error
+	InsertSeller(userID, name, address, birthdate, phoneNumber, gender, identityNumber, bankName, debitNumber string) error
+	UpdateCustomerByID(userID, name, address, phoneNumber, gender string) error
+	UpdateSellerByID(userID, name, address, birthdate, phoneNumber, gender, identityNumber, bankName, debitNumber string) error
+	UpdateUserPasswordByID(userID string, password string) error
 }
