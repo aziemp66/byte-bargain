@@ -1,74 +1,74 @@
 CREATE TABLE `user` (
-    `id_user` VARCHAR(36) PRIMARY KEY,
+    `user_id` VARCHAR(36) PRIMARY KEY,
     `email` VARCHAR(225) UNIQUE NOT NULL,
     `password` VARCHAR(225) NOT NULL
 );
-CREATE TABLE `pembeli` (
-    `id_pembeli` VARCHAR(36) PRIMARY KEY,
-    `id_user` VARCHAR(36) UNIQUE NOT NULL,
-    `nama` VARCHAR(225) NOT NULL,
-    `alamat` VARCHAR(225) NOT NULL,
-    `tgl_lahir` DATE NOT NULL,
-    `no_hp` VARCHAR(20) UNIQUE NOT NULL,
-    `jenis_kelamin` ENUM('Laki-laki', 'Perempuan') NOT NULL
+CREATE TABLE `customer` (
+    `customer_id` VARCHAR(36) PRIMARY KEY,
+    `user_id` VARCHAR(36) UNIQUE NOT NULL,
+    `name` VARCHAR(225) NOT NULL,
+    `address` VARCHAR(225) NOT NULL,
+    `date_of_birth` DATE NOT NULL,
+    `phone_number` VARCHAR(20) UNIQUE NOT NULL,
+    `gender` ENUM('Male', 'Female')
 );
-CREATE TABLE `penjual` (
-    `id_penjual` VARCHAR(36) PRIMARY KEY,
-    `id_user` VARCHAR(36) UNIQUE NOT NULL,
-    `nama` VARCHAR(225) NOT NULL,
-    `saldo` FLOAT NOT NULL,
-    `alamat` VARCHAR(225) NOT NULL,
-    `tgl_lahir` DATE NOT NULL,
-    `no_hp` VARCHAR(20) UNIQUE NOT NULL,
-    `jenis_kelamin` ENUM('Laki-laki', 'Perempuan') NOT NULL,
-    `kartu_identitas` VARCHAR(225) NOT NULL,
-    `rekening_bank` VARCHAR(225) NOT NULL,
-    `nomor_rekening` INT NOT NULL
+CREATE TABLE `seller` (
+    `seller_id` VARCHAR(36) PRIMARY KEY,
+    `user_id` VARCHAR(36) UNIQUE NOT NULL,
+    `name` VARCHAR(225) NOT NULL,
+    `balance` FLOAT NOT NULL,
+    `address` VARCHAR(225) NOT NULL,
+    `date_of_birth` DATE NOT NULL,
+    `phone_number` VARCHAR(20) UNIQUE NOT NULL,
+    `gender` ENUM('Male', 'Female') NOT NULL,
+    `identity_number` VARCHAR(225) NOT NULL,
+    `bank_name` VARCHAR(225) NOT NULL,
+    `debit_number` INT NOT NULL
 );
-CREATE TABLE `produk` (
-    `id_produk` VARCHAR(36) PRIMARY KEY,
-    `id_penjual` VARCHAR(36) NOT NULL,
-    `nama_produk` VARCHAR(225) NOT NULL,
-    `kategori` VARCHAR(225) NOT NULL,
-    `deskripsi` TEXT NOT NULL,
-    `harga` FLOAT NOT NULL,
-    `stok` INT NOT NULL,
-    `berat` FLOAT NOT NULL
+CREATE TABLE `product` (
+    `product_id` VARCHAR(36) PRIMARY KEY,
+    `seller_id` VARCHAR(36) NOT NULL,
+    `name` VARCHAR(225) NOT NULL,
+    `category` VARCHAR(225) NOT NULL,
+    `description` TEXT NOT NULL,
+    `price` FLOAT NOT NULL,
+    `stock` INT NOT NULL,
+    `weight` FLOAT NOT NULL
 );
-CREATE TABLE `pesanan` (
-    `id_pesanan` VARCHAR(36) PRIMARY KEY,
-    `id_pembeli` VARCHAR(36) NOT NULL,
-    `id_penjual` VARCHAR(36) NOT NULL,
-    `waktu_transaksi` DATETIME NOT NULL,
+CREATE TABLE `order` (
+    `order_id` VARCHAR(36) PRIMARY KEY,
+    `customer_id` VARCHAR(36) NOT NULL,
+    `seller_id` VARCHAR(36) NOT NULL,
+    `transaction_date` DATETIME NOT NULL,
     `status` VARCHAR(225) NOT NULL
 );
-CREATE TABLE `pesanan_produk` (
-    `id_pesanan_produk` VARCHAR(36) PRIMARY KEY,
-    `id_produk` VARCHAR(36) NOT NULL,
-    `id_pesanan` VARCHAR(36) NOT NULL,
+CREATE TABLE `order_product` (
+    `order_product_id` VARCHAR(36) PRIMARY KEY,
+    `product_id` VARCHAR(36) NOT NULL,
+    `order_id` VARCHAR(36) NOT NULL,
     `qty` INT NOT NULL
 );
-CREATE TABLE `pembayaran` (
-    `id_pembayaran` VARCHAR(36) PRIMARY KEY,
-    `id_pesanan` VARCHAR(36) UNIQUE NOT NULL,
-    `tgl_bayar` DATE NOT NULL,
-    `total_bayar` FLOAT NOT NULL,
-    `metode_pembayaran` VARCHAR(20) NOT NULL
+CREATE TABLE `payment` (
+    `payment_id` VARCHAR(36) PRIMARY KEY,
+    `order_id` VARCHAR(36) UNIQUE NOT NULL,
+    `payment_date` DATE NOT NULL,
+    `total_payment` FLOAT NOT NULL,
+    `payment_method` VARCHAR(20) NOT NULL
 );
 
-ALTER TABLE `pembeli`
-ADD FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`);
-ALTER TABLE `penjual`
-ADD FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`);
-ALTER TABLE `produk`
-ADD FOREIGN KEY (`id_penjual`) REFERENCES `penjual` (`id_penjual`);
-ALTER TABLE `pesanan`
-ADD FOREIGN KEY (`id_pembeli`) REFERENCES `pembeli` (`id_pembeli`);
-ALTER TABLE `pesanan`
-ADD FOREIGN KEY (`id_penjual`) REFERENCES `penjual` (`id_penjual`);
-ALTER TABLE `pesanan_produk`
-ADD FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`);
-ALTER TABLE `pesanan_produk`
-ADD FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id_pesanan`);
-ALTER TABLE `pembayaran`
-ADD FOREIGN KEY (`id_pesanan`) REFERENCES `pesanan` (`id_pesanan`);
+ALTER TABLE `customer`
+ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+ALTER TABLE `seller`
+ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+ALTER TABLE `product`
+ADD FOREIGN KEY (`seller_id`) REFERENCES `seller` (`seller_id`);
+ALTER TABLE `order`
+ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
+ALTER TABLE `order`
+ADD FOREIGN KEY (`seller_id`) REFERENCES `seller` (`seller_id`);
+ALTER TABLE `order_product`
+ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`);
+ALTER TABLE `order_product`
+ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
+ALTER TABLE `payment`
+ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
