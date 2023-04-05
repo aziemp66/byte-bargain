@@ -48,6 +48,16 @@ CREATE TABLE `order_product` (
     `order_id` VARCHAR(36) NOT NULL,
     `qty` INT NOT NULL
 );
+CREATE TABLE `cart` (
+    `cart_id` VARCHAR(36) PRIMARY KEY,
+    `customer_id` VARCHAR(36) NOT NULL,
+)
+CREATE TABLE `cart_product` (
+    `cart_product_id` VARCHAR(36) PRIMARY KEY,
+    `product_id` VARCHAR(36) NOT NULL,
+    `cart_id` VARCHAR(36) NOT NULL,
+    `qty` INT NOT NULL
+)
 CREATE TABLE `payment` (
     `payment_id` VARCHAR(36) PRIMARY KEY,
     `order_id` VARCHAR(36) UNIQUE NOT NULL,

@@ -26,6 +26,18 @@ type (
 		ProductID      string
 		Quantity       int
 	}
+
+	Cart struct {
+		CartID     string
+		CustomerID string
+	}
+
+	CartProduct struct {
+		CartProductID string
+		CartID        string
+		ProductID     string
+		Quantity      int
+	}
 	Payment struct {
 		PaymentID     string    `json:"payment_id"`
 		OrderID       string    `json:"order_id"`
