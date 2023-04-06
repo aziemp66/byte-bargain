@@ -82,3 +82,9 @@ ALTER TABLE `order_product`
 ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
 ALTER TABLE `payment`
 ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
+ALTER TABLE `cart`
+ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
+ALTER TABLE `cart_product`
+ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`);
+ALTER TABLE `cart_product`
+ADD FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`);

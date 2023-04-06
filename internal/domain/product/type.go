@@ -4,39 +4,39 @@ import "time"
 
 type (
 	Product struct {
-		ProductID   string
-		SellerID    string
-		Name        string
-		Price       float64
-		Stock       int
-		Category    string
-		Description string
-		Weight      float64
+		ProductID   string  `json:"product_id"`
+		SellerID    string  `json:"seller_id"`
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
 	}
 	Order struct {
-		OrderID    string
-		CustomerID string
-		SellerID   string
-		OrderDate  string
-		Status     string
+		OrderID    string `json:"order_id"`
+		CustomerID string `json:"customer_id"`
+		SellerID   string `json:"seller_id"`
+		OrderDate  string `json:"order_date"`
+		Status     string `json:"status"`
 	}
 	OrderProduct struct {
-		OrderProductID string
-		OrderID        string
-		ProductID      string
-		Quantity       int
+		OrderProductID string `json:"order_product_id"`
+		OrderID        string `json:"order_id"`
+		ProductID      string `json:"product_id"`
+		Quantity       int    `json:"quantity"`
 	}
 
 	Cart struct {
-		CartID     string
-		CustomerID string
+		CartID     string `json:"cart_id"`
+		CustomerID string `json:"customer_id"`
 	}
 
 	CartProduct struct {
-		CartProductID string
-		CartID        string
-		ProductID     string
-		Quantity      int
+		CartProductID string `json:"cart_product_id"`
+		CartID        string `json:"cart_id"`
+		ProductID     string `json:"product_id"`
+		Quantity      int    `json:"quantity"`
 	}
 	Payment struct {
 		PaymentID     string    `json:"payment_id"`
