@@ -13,7 +13,7 @@ type (
 		UserID      string    `json:"user_id"`
 		Name        string    `json:"name"`
 		Address     string    `json:"address"`
-		BirthDate   time.Time `json:"birth_date"`
+		BirthDate   time.Time `json:"date_of_birth"`
 		PhoneNumber string    `json:"phone_number"`
 		Gender      string    `json:"gender"`
 	}
@@ -22,7 +22,7 @@ type (
 		UserID         string    `json:"user_id"`
 		Name           string    `json:"name"`
 		Address        string    `json:"address"`
-		BirthDate      time.Time `json:"birth_date"`
+		BirthDate      time.Time `json:"date_of_birth"`
 		PhoneNumber    string    `json:"phone_number"`
 		Gender         string    `json:"gender"`
 		IdentityNumber string    `json:"identity_number"`
