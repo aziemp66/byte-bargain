@@ -16,7 +16,7 @@ type Repository interface {
 	InsertUser(ctx context.Context, tx *sql.Tx, email, password string) (userID string, Error error)
 	InsertCustomer(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error
 	InsertSeller(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error
-	UpdateCustomerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string) error
-	UpdateSellerByID(ctx context.Context, tx *sql.Tx, userID, name, address, birthdate, phoneNumber, gender, identityNumber, bankName, debitNumber string) error
+	UpdateCustomerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error
+	UpdateSellerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error
 	UpdateUserPasswordByID(ctx context.Context, tx *sql.Tx, userID string, password string) error
 }

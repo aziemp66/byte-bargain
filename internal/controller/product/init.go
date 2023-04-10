@@ -16,66 +16,66 @@ func NewProductController(productUsecase productUseCase.Usecase) *ProductControl
 	}
 }
 
-func (p *ProductController) GetRecommendedProduct(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetRecommendedProduct(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetSearchedProduct(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetSearchedProduct(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetAllProductBySellerID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetAllProductBySellerID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetProductByID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetProductByID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetOrderByID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetOrderByID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetCustomerOrderByID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetCustomerOrderByID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetSellerOrderByID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetSellerOrderByID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetOrderProductByID(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetOrderProductByID(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) GetCustomerCart(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) GetCustomerCart(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) AddProductToCart(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) AddProductToCart(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) RemoveProductFromCart(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) RemoveProductFromCart(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) Checkout(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) Checkout(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) AddProduct(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) AddProduct(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) UpdateProduct(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) UpdateProduct(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) DeleteProduct(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) DeleteProduct(ctx *gin.Context) {
+
 }
 
-func (p *ProductController) ChangeOrderStatus(ctx *gin.Context) error {
-	return nil
+func (p *ProductController) ChangeOrderStatus(ctx *gin.Context) {
+
 }

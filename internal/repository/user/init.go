@@ -149,5 +149,4 @@ func (u UserRepositoryImplementation) UpdateUserPasswordByID(ctx context.Context
 	}
 
 	return nil
-
 }
