@@ -260,9 +260,21 @@ func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx context.Conte
 }
 
 func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error {
-	query := `UPDATE order_product SET quantity = ? WHERE order_product_id = ?`
+	query := `UPDATE order_product SET qty = ? WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, orderProductID)
+
+	if err != nil {
+		return errorCommon.NewInvariantError(err.Error())
+	}
+
+	return nil
+}
+
+func (p ProductRepositoryImplementation) UpdateCardProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error {
+	query := `UPDATE cart_product SET qty = ? WHERE cart_product_id = ?`
+
+	_, err := tx.ExecContext(ctx, query, quantity, cartProductID)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -287,6 +299,18 @@ func (p ProductRepositoryImplementation) DeleteOrderProductByID(ctx context.Cont
 	query := `DELETE FROM order_product WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, orderProductID)
+
+	if err != nil {
+		return errorCommon.NewInvariantError(err.Error())
+	}
+
+	return nil
+}
+
+func (p ProductRepositoryImplementation) DeleteCartProductByID(ctx context.Context, tx *sql.Tx, cartProductID string) error {
+	query := `DELETE FROM cart_product WHERE cart_product_id = ?`
+
+	_, err := tx.ExecContext(ctx, query, cartProductID)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())

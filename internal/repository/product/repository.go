@@ -25,6 +25,8 @@ type Repository interface {
 	UpdateProductByID(ctx context.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error
 	UpdateOrderStatusByID(ctx context.Context, tx *sql.Tx, orderID, status string) error
 	UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error
+	UpdateCardProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error
 	DeleteProductByID(ctx context.Context, tx *sql.Tx, productID string) error
 	DeleteOrderProductByID(ctx context.Context, tx *sql.Tx, orderProductID string) error
+	DeleteCartProductByID(ctx context.Context, tx *sql.Tx, cartProductID string) error
 }
