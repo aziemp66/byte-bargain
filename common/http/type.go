@@ -60,10 +60,29 @@ type (
 		Gender      string `json:"gender"`
 	}
 
+	UpdateCustomer struct {
+		Name        string `json:"name"`
+		Address     string `json:"address"`
+		BirthDate   string `json:"birth_date"`
+		PhoneNumber string `json:"phone_number"`
+		Gender      string `json:"gender"`
+	}
+
 	Seller struct {
 		SellerID       string `json:"seller_id"`
 		UserID         string `json:"user_id"`
 		Email          string `json:"email"`
+		Name           string `json:"name"`
+		Address        string `json:"address"`
+		BirthDate      string `json:"birth_date"`
+		PhoneNumber    string `json:"phone_number"`
+		Gender         string `json:"gender"`
+		IdentityNumber string `json:"identity_number"`
+		BankName       string `json:"bank_name"`
+		DebitNumber    string `json:"debit_number"`
+	}
+
+	UpdateSeller struct {
 		Name           string `json:"name"`
 		Address        string `json:"address"`
 		BirthDate      string `json:"birth_date"`

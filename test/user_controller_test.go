@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
+	httpCommon "github.com/aziemp66/byte-bargain/common/http"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 	userController "github.com/aziemp66/byte-bargain/internal/controller/user"
 	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
@@ -36,9 +37,9 @@ func TestUserController(t *testing.T) {
 	router := getDummyUserController()
 
 	t.Run("Test Login", func(t *testing.T) {
-		requestBody := map[string]interface{}{
-			"email":    "aziemp66@gmail.com",
-			"password": "azie122333",
+		requestBody := httpCommon.Login{
+			Email:    "youremail@gmail.com",
+			Password: "yourpassword",
 		}
 		requestBodyBytes, _ := json.Marshal(requestBody)
 		request, _ := http.NewRequest("POST", "/api/user/login", bytes.NewBuffer(requestBodyBytes))
@@ -52,4 +53,169 @@ func TestUserController(t *testing.T) {
 		}
 	})
 
+	t.Run("Test Register Customer", func(t *testing.T) {
+		requestBody := httpCommon.RegisterCustomer{
+			Email:       "youremail@gmail.com",
+			Password:    "yourpassword",
+			Name:        "yourname",
+			Address:     "youraddress",
+			BirthDate:   "yourbirthdate",
+			PhoneNumber: "yourphonenumber",
+			Gender:      "yourgender",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+		request, _ := http.NewRequest("POST", "/api/user/register/customer", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Register Seller", func(t *testing.T) {
+		requestBody := httpCommon.RegisterSeller{
+			Email:          "myemail@gmail.com",
+			Password:       "mypassword",
+			Name:           "myname",
+			Address:        "myaddress",
+			BirthDate:      "mybirthdate",
+			PhoneNumber:    "myphonenumber",
+			Gender:         "mygender",
+			IdentityNumber: "myidentitynumber",
+			BankName:       "mybankname",
+			DebitNumber:    "mydebitnumber",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+
+		request, _ := http.NewRequest("POST", "/api/user/register/seller", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+	})
+
+	t.Run("Test Get Customer By ID", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/api/user/customer/1", nil)
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Get Seller By ID", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/api/user/seller/1", nil)
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Forgot Password", func(t *testing.T) {
+		requestBody := httpCommon.ForgotPassword{
+			Email: "youremail@gmail.com",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+
+		request, _ := http.NewRequest("POST", "/api/user/forgot-password", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Reset Password", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/api/user/reset-password/12/yourtoken", nil)
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Change Password", func(t *testing.T) {
+		requestBody := httpCommon.ChangePassword{
+			OldPassword: "youroldpassword",
+			NewPassword: "yournewpassword",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+
+		request, _ := http.NewRequest("POST", "/api/user/change-password", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Update Customer", func(t *testing.T) {
+		requestBody := httpCommon.UpdateCustomer{
+			Name:        "yourname",
+			Address:     "youraddress",
+			BirthDate:   "yourbirthdate",
+			PhoneNumber: "yourphonenumber",
+			Gender:      "yourgender",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+
+		request, _ := http.NewRequest("POST", "/api/user/customer", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
+
+	t.Run("Test Update Seller", func(t *testing.T) {
+		requestBody := httpCommon.UpdateSeller{
+			Name:           "yourname",
+			Address:        "youraddress",
+			BirthDate:      "yourbirthdate",
+			PhoneNumber:    "yourphonenumber",
+			Gender:         "yourgender",
+			IdentityNumber: "youridentitynumber",
+			BankName:       "yourbankname",
+			DebitNumber:    "yourdebitnumber",
+		}
+
+		requestBodyBytes, _ := json.Marshal(requestBody)
+
+		request, _ := http.NewRequest("POST", "/api/user/seller", bytes.NewBuffer(requestBodyBytes))
+
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		if assert.NotEqual(t, http.StatusOK, response.Code) {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, response.Code)
+		}
+	})
 }
