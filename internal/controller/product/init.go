@@ -10,10 +10,29 @@ type ProductController struct {
 	ProductUsecase productUseCase.Usecase
 }
 
-func NewProductController(productUsecase productUseCase.Usecase) *ProductController {
-	return &ProductController{
+func NewProductController(router *gin.RouterGroup, productUsecase productUseCase.Usecase) {
+	productController := ProductController{
 		ProductUsecase: productUsecase,
 	}
+
+	router.GET("/product", productController.GetRecommendedProduct)
+	router.GET("/product/search/:search", productController.GetSearchedProduct)
+	router.GET("/product/seller/:sellerID", productController.GetAllProductBySellerID)
+	router.GET("/product/:productID", productController.GetProductByID)
+	router.GET("/order/:orderID", productController.GetOrderByID)
+	router.GET("/order/customer/:customerID", productController.GetCustomerOrderByID)
+	router.GET("/order/seller/:sellerID", productController.GetSellerOrderByID)
+	router.GET("/order/product/:productID", productController.GetOrderProductByID)
+	router.GET("/cart", productController.GetCustomerCart)
+	router.POST("/cart", productController.AddProductToCart)
+	router.PUT("/cart/:productID/:qty", productController.UpdateProductQtyInCart)
+	router.PUT("/cart", productController.UpdateProductInCart)
+	router.POST("/checkout", productController.Checkout)
+	router.POST("/product", productController.AddProduct)
+	router.PUT("/product/:productID", productController.UpdateProduct)
+	router.DELETE("/product/:productID", productController.DeleteProduct)
+	router.PUT("/order/status", productController.ChangeOrderStatus)
+
 }
 
 func (p *ProductController) GetRecommendedProduct(ctx *gin.Context) {
@@ -56,7 +75,10 @@ func (p *ProductController) AddProductToCart(ctx *gin.Context) {
 
 }
 
-func (p *ProductController) RemoveProductFromCart(ctx *gin.Context) {
+func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
+}
+
+func (p *ProductController) UpdateProductInCart(ctx *gin.Context) {
 
 }
 

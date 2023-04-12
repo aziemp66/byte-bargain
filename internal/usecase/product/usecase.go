@@ -17,7 +17,7 @@ type Usecase interface {
 	GetOrderProductByID(ctx context.Context, orderProductID string) (httpCommon.OrderProduct, error)
 	GetCustomerCart(ctx context.Context, customerID string) (httpCommon.CartItems, error)
 	GetPaymentByID(ctx context.Context, paymentID string) (httpCommon.Payment, error)
-	InsertProduct(ctx context.Context, product httpCommon.Product) error
+	InsertProduct(ctx context.Context, product httpCommon.AddProduct) error
 	InsertOrder(ctx context.Context, createOrder httpCommon.CreateOrder) error
 	InsertOrderProduct(ctx context.Context, orderProduct httpCommon.OrderProduct) error
 	InsertCartProduct(ctx context.Context, cartProduct httpCommon.CartProduct) error

@@ -94,6 +94,8 @@ type (
 	}
 
 	Product struct {
+		ID          string  `json:"id"`
+		SellerID    string  `json:"seller_id"`
 		Name        string  `json:"name"`
 		Price       float64 `json:"price"`
 		Stock       int     `json:"stock"`
@@ -102,14 +104,22 @@ type (
 		Weight      float64 `json:"weight"`
 	}
 
-	productItem struct {
+	AddProduct struct {
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
+	}
+	ProductItem struct {
 		ProductID string `json:"product_id"`
 		Qty       int    `json:"qty"`
 	}
 
 	CreateOrder struct {
 		SellerID string        `json:"seller_id"`
-		Items    []productItem `json:"items"`
+		Items    []ProductItem `json:"items"`
 	}
 
 	Order struct {
@@ -132,14 +142,14 @@ type (
 		SellerID     string        `json:"seller_id"`
 		OrderDate    string        `json:"order_date"`
 		Status       string        `json:"status"`
-		Products     []productItem `json:"products"`
+		Products     []ProductItem `json:"products"`
 		TotalPayment float64       `json:"total_payment"`
 	}
 
 	CartItems struct {
 		CartID     string        `json:"cart_id"`
 		CustomerID string        `json:"customer_id"`
-		Products   []productItem `json:"products"`
+		Products   []ProductItem `json:"products"`
 	}
 	CartProduct struct {
 		CartProductID string `json:"cart_product_id"`
