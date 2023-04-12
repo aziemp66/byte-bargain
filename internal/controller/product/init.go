@@ -20,19 +20,18 @@ func NewProductController(router *gin.RouterGroup, productUsecase productUseCase
 	router.GET("/product/seller/:sellerID", productController.GetAllProductBySellerID)
 	router.GET("/product/:productID", productController.GetProductByID)
 	router.GET("/order/:orderID", productController.GetOrderByID)
-	router.GET("/order/customer/:customerID", productController.GetCustomerOrderByID)
-	router.GET("/order/seller/:sellerID", productController.GetSellerOrderByID)
-	router.GET("/order/product/:productID", productController.GetOrderProductByID)
+	router.GET("/order/customer", productController.GetCustomerOrder)
+	router.GET("/order/seller", productController.GetSellerOrder)
+	router.GET("/order/product/:orderID", productController.GetOrderProductByOrderID)
+	router.POST("/order", productController.AddOrder)
+	router.PUT("/order/status", productController.ChangeOrderStatus)
 	router.GET("/cart", productController.GetCustomerCart)
 	router.POST("/cart", productController.AddProductToCart)
 	router.PUT("/cart/:productID/:qty", productController.UpdateProductQtyInCart)
-	router.PUT("/cart", productController.UpdateProductInCart)
-	router.POST("/checkout", productController.Checkout)
+	router.DELETE("/cart/:productID", productController.DeleteProductInCart)
 	router.POST("/product", productController.AddProduct)
-	router.PUT("/product/:productID", productController.UpdateProduct)
+	router.PUT("/product", productController.UpdateProduct)
 	router.DELETE("/product/:productID", productController.DeleteProduct)
-	router.PUT("/order/status", productController.ChangeOrderStatus)
-
 }
 
 func (p *ProductController) GetRecommendedProduct(ctx *gin.Context) {
@@ -55,15 +54,15 @@ func (p *ProductController) GetOrderByID(ctx *gin.Context) {
 
 }
 
-func (p *ProductController) GetCustomerOrderByID(ctx *gin.Context) {
+func (p *ProductController) GetCustomerOrder(ctx *gin.Context) {
 
 }
 
-func (p *ProductController) GetSellerOrderByID(ctx *gin.Context) {
+func (p *ProductController) GetSellerOrder(ctx *gin.Context) {
 
 }
 
-func (p *ProductController) GetOrderProductByID(ctx *gin.Context) {
+func (p *ProductController) GetOrderProductByOrderID(ctx *gin.Context) {
 
 }
 
@@ -78,11 +77,11 @@ func (p *ProductController) AddProductToCart(ctx *gin.Context) {
 func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
 }
 
-func (p *ProductController) UpdateProductInCart(ctx *gin.Context) {
+func (p *ProductController) DeleteProductInCart(ctx *gin.Context) {
 
 }
 
-func (p *ProductController) Checkout(ctx *gin.Context) {
+func (p *ProductController) AddOrder(ctx *gin.Context) {
 
 }
 
