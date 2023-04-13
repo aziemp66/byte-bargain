@@ -35,7 +35,7 @@ func getDummyProductController() *gin.Engine {
 func TestProductController(t *testing.T) {
 	router := getDummyProductController()
 
-	t.Run("Test Get Recommended Products", func(t *testing.T) {
+	t.Run("Test Get All Products", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/api/product", nil)
 
 		response := httptest.NewRecorder()

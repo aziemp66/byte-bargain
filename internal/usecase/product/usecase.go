@@ -28,4 +28,5 @@ type Usecase interface {
 	UpdateCartProductQtyByID(ctx context.Context, cartProductID, quantity string) error
 	DeleteProductByID(ctx context.Context, productID string) error
 	DeleteOrderProductByID(ctx context.Context, orderProductID string) error
+	DeleteCartProductByID(ctx context.Context, cartProductID string) error
 }

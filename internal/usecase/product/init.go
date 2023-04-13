@@ -125,3 +125,8 @@ func (p ProductUsecaseImplementation) DeleteOrderProductByID(ctx context.Context
 	//TODO implement me
 	panic("implement me")
 }
+
+func (p ProductUsecaseImplementation) DeleteCartProductByID(ctx context.Context, cartProductID string) error {
+	//TODO implement me
+	panic("implement me")
+}

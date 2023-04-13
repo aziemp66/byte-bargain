@@ -15,9 +15,32 @@ func NewProductRepositoryImplementation() *ProductRepositoryImplementation {
 	return &ProductRepositoryImplementation{}
 }
 
-func (p ProductRepositoryImplementation) GetRecommendedProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.Product, error) {
-	//TODO implement me
-	panic("implement me")
+func (p ProductRepositoryImplementation) GetAllProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.Product, error) {
+	var products []productDomain.Product
+
+	query := `SELECT product_id, seller_id, name, price, stock, category, description, weight FROM product`
+
+	rows, err := tx.QueryContext(ctx, query)
+
+	if err != nil {
+		return products, errorCommon.NewInvariantError(err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var product productDomain.Product
+
+		err = rows.Scan(&product.ProductID, &product.SellerID, &product.Name, &product.Price, &product.Stock, &product.Category, &product.Description, &product.Weight)
+
+		if err != nil {
+			return products, errorCommon.NewInvariantError(err.Error())
+		}
+
+		products = append(products, product)
+	}
+
+	return products, nil
 }
 
 func (p ProductRepositoryImplementation) GetSearchedProduct(ctx context.Context, tx *sql.Tx, search string) ([]productDomain.Product, error) {

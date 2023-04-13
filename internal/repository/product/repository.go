@@ -8,7 +8,7 @@ import (
 )
 
 type Repository interface {
-	GetRecommendedProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.Product, error)
+	GetAllProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.Product, error)
 	GetSearchedProduct(ctx context.Context, tx *sql.Tx, search string) ([]productDomain.Product, error)
 	GetAllProductBySellerID(ctx context.Context, tx *sql.Tx, sellerID string) ([]productDomain.Product, error)
 	GetProductByID(ctx context.Context, tx *sql.Tx, productID string) (productDomain.Product, error)
