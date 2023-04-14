@@ -24,3 +24,19 @@ func NewDB(connectionString string) *sql.DB {
 
 	return db
 }
+
+func CommitOrRollback(tx *sql.Tx) {
+	err := recover()
+	if err != nil {
+		rollErr := tx.Rollback()
+		if rollErr != nil {
+			panic(rollErr)
+		}
+		panic(err)
+	} else {
+		commitErr := tx.Commit()
+		if commitErr != nil {
+			panic(commitErr)
+		}
+	}
+}

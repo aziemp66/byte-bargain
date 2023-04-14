@@ -12,7 +12,9 @@ import (
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
+
 	userController "github.com/aziemp66/byte-bargain/internal/controller/user"
 	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 	userUsecase "github.com/aziemp66/byte-bargain/internal/usecase/user"
@@ -27,8 +29,9 @@ func getDummyUserController() *gin.Engine {
 
 	testDb := dbCommon.NewDB("root:azie122333@tcp(localhost:3306)/test_byte_bargain?charset=utf8mb4&parseTime=True&loc=Local")
 	testSession := sessionCommon.NewSessionManager([]byte("secret"))
+	passwordManager := passwordCommon.NewPasswordHashManager()
 	UserRepository := userRepository.NewUserRepositoryImplementation()
-	UserUsecase := userUsecase.NewUserUsecaseImplementation(UserRepository, testDb, testSession)
+	UserUsecase := userUsecase.NewUserUsecaseImplementation(UserRepository, testDb, testSession, passwordManager)
 	userController.NewUserController(userGroup, UserUsecase)
 	return router
 }

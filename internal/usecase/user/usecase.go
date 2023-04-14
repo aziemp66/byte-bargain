@@ -2,19 +2,18 @@ package user
 
 import (
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
-
-	"context"
+	"github.com/gin-gonic/gin"
 )
 
 type Usecase interface {
-	Login(ctx context.Context, login httpCommon.Login) error
-	RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error
-	RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error
-	GetCustomerByID(ctx context.Context, customerID string) (httpCommon.Customer, error)
-	GetSellerByID(ctx context.Context, sellerID string) (httpCommon.Seller, error)
-	ForgotPassword(ctx context.Context, forgotPassword httpCommon.ForgotPassword) error
-	ResetPassword(ctx context.Context, id, token string) error
-	ChangePassword(ctx context.Context, id string, ChangePassword httpCommon.ChangePassword) error
-	UpdateCustomerByID(ctx context.Context, customer httpCommon.Customer) error
-	UpdateSellerByID(ctx context.Context, seller httpCommon.Seller) error
+	Login(ctx *gin.Context, login httpCommon.Login) error
+	RegisterCustomer(ctx *gin.Context, registerCustomer httpCommon.RegisterCustomer) error
+	RegisterSeller(ctx *gin.Context, registerSeller httpCommon.RegisterSeller) error
+	GetCustomerByID(ctx *gin.Context, customerID string) (httpCommon.Customer, error)
+	GetSellerByID(ctx *gin.Context, sellerID string) (httpCommon.Seller, error)
+	ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error
+	ResetPassword(ctx *gin.Context, id, token string) error
+	ChangePassword(ctx *gin.Context, id string, ChangePassword httpCommon.ChangePassword) error
+	UpdateCustomerByID(ctx *gin.Context, customer httpCommon.Customer) error
+	UpdateSellerByID(ctx *gin.Context, seller httpCommon.Seller) error
 }

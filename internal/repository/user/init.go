@@ -1,12 +1,12 @@
 package user
 
 import (
-	"context"
 	"database/sql"
 	"time"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	userDomain "github.com/aziemp66/byte-bargain/internal/domain/user"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +17,7 @@ func NewUserRepositoryImplementation() *UserRepositoryImplementation {
 	return &UserRepositoryImplementation{}
 }
 
-func (u UserRepositoryImplementation) GetUserByID(ctx context.Context, tx *sql.Tx, userID string) (userDomain.User, error) {
+func (u UserRepositoryImplementation) GetUserByID(ctx *gin.Context, tx *sql.Tx, userID string) (userDomain.User, error) {
 	var user userDomain.User
 
 	query := `SELECT user_id, email, password FROM user WHERE user_id = ?`
@@ -31,7 +31,7 @@ func (u UserRepositoryImplementation) GetUserByID(ctx context.Context, tx *sql.T
 	return user, nil
 }
 
-func (u UserRepositoryImplementation) GetUserByEmail(ctx context.Context, tx *sql.Tx, email string) (userDomain.User, error) {
+func (u UserRepositoryImplementation) GetUserByEmail(ctx *gin.Context, tx *sql.Tx, email string) (userDomain.User, error) {
 	var user userDomain.User
 
 	query := `SELECT user_id, email, password FROM user WHERE email = ?`
@@ -45,7 +45,7 @@ func (u UserRepositoryImplementation) GetUserByEmail(ctx context.Context, tx *sq
 	return user, nil
 }
 
-func (u UserRepositoryImplementation) GetCustomerByID(ctx context.Context, tx *sql.Tx, customerID string) (userDomain.Customer, error) {
+func (u UserRepositoryImplementation) GetCustomerByID(ctx *gin.Context, tx *sql.Tx, customerID string) (userDomain.Customer, error) {
 	var customer userDomain.Customer
 
 	query := `SELECT customer_id, user_id, name, address, date_of_birth, phone_number, gender FROM customer WHERE customer_id = ?`
@@ -59,7 +59,7 @@ func (u UserRepositoryImplementation) GetCustomerByID(ctx context.Context, tx *s
 	return customer, nil
 }
 
-func (u UserRepositoryImplementation) GetSellerByID(ctx context.Context, tx *sql.Tx, sellerID string) (userDomain.Seller, error) {
+func (u UserRepositoryImplementation) GetSellerByID(ctx *gin.Context, tx *sql.Tx, sellerID string) (userDomain.Seller, error) {
 	var seller userDomain.Seller
 
 	query := `Select seller_id, user_id, name, address, date_of_birth, phone_number, gender, identity_number, bank_name, debit_number FROM seller WHERE seller_id = ?`
@@ -73,7 +73,7 @@ func (u UserRepositoryImplementation) GetSellerByID(ctx context.Context, tx *sql
 	return seller, nil
 }
 
-func (u UserRepositoryImplementation) InsertUser(ctx context.Context, tx *sql.Tx, email, password string) (userID string, Error error) {
+func (u UserRepositoryImplementation) InsertUser(ctx *gin.Context, tx *sql.Tx, email, password string) (userID string, Error error) {
 	query := `INSERT INTO user (user_id, email, password) VALUES (?, ?)`
 
 	userID = uuid.NewString()
@@ -87,7 +87,7 @@ func (u UserRepositoryImplementation) InsertUser(ctx context.Context, tx *sql.Tx
 	return userID, nil
 }
 
-func (u UserRepositoryImplementation) InsertCustomer(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error {
+func (u UserRepositoryImplementation) InsertCustomer(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error {
 	query := `INSERT INTO customer (customer_id, user_id, name, address, date_of_birth, phone_number, gender) VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	customerID := uuid.NewString()
@@ -101,7 +101,7 @@ func (u UserRepositoryImplementation) InsertCustomer(ctx context.Context, tx *sq
 	return nil
 }
 
-func (u UserRepositoryImplementation) InsertSeller(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error {
+func (u UserRepositoryImplementation) InsertSeller(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error {
 	query := `INSERT INTO seller (seller_id, user_id, name, address, date_of_birth, phone_number, gender, identity_number, bank_name, debit_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	sellerID := uuid.NewString()
@@ -115,7 +115,7 @@ func (u UserRepositoryImplementation) InsertSeller(ctx context.Context, tx *sql.
 	return nil
 }
 
-func (u UserRepositoryImplementation) UpdateCustomerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error {
+func (u UserRepositoryImplementation) UpdateCustomerByID(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error {
 	query := `UPDATE customer set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ? WHERE user_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, name, address, phoneNumber, gender, birthdate, userID)
@@ -127,7 +127,7 @@ func (u UserRepositoryImplementation) UpdateCustomerByID(ctx context.Context, tx
 	return nil
 }
 
-func (u UserRepositoryImplementation) UpdateSellerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error {
+func (u UserRepositoryImplementation) UpdateSellerByID(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error {
 	query := `UPDATE seller set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ?, identity_number = ?, bank_name = ?, debit_number = ? WHERE user_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, name, address, phoneNumber, gender, birthdate, identityNumber, bankName, debitNumber, userID)
@@ -139,7 +139,7 @@ func (u UserRepositoryImplementation) UpdateSellerByID(ctx context.Context, tx *
 	return nil
 }
 
-func (u UserRepositoryImplementation) UpdateUserPasswordByID(ctx context.Context, tx *sql.Tx, userID string, password string) error {
+func (u UserRepositoryImplementation) UpdateUserPasswordByID(ctx *gin.Context, tx *sql.Tx, userID string, password string) error {
 	query := `UPDATE user set password = ? WHERE user_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, password, userID)

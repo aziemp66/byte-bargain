@@ -1,66 +1,96 @@
 package user
 
 import (
-	"context"
 	"database/sql"
 
+	dbCommon "github.com/aziemp66/byte-bargain/common/db"
+	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
+	"github.com/gin-gonic/gin"
 
 	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 )
 
 type UserUsecaseImplementation struct {
-	UserRepository userRepository.Repository
-	DB             *sql.DB
-	SessionManager *sessionCommon.SessionManager
+	UserRepository      userRepository.Repository
+	DB                  *sql.DB
+	SessionManager      *sessionCommon.SessionManager
+	PasswordHashManager *passwordCommon.PasswordHashManager
 }
 
-func NewUserUsecaseImplementation(userRepository userRepository.Repository, db *sql.DB, sessionManager *sessionCommon.SessionManager) *UserUsecaseImplementation {
+func NewUserUsecaseImplementation(userRepository userRepository.Repository, db *sql.DB, sessionManager *sessionCommon.SessionManager, passwordManager *passwordCommon.PasswordHashManager) *UserUsecaseImplementation {
 	return &UserUsecaseImplementation{
-		UserRepository: userRepository,
-		DB:             db,
-		SessionManager: sessionManager,
+		UserRepository:      userRepository,
+		DB:                  db,
+		SessionManager:      sessionManager,
+		PasswordHashManager: passwordManager,
 	}
 }
 
-func (u *UserUsecaseImplementation) Login(ctx context.Context, login httpCommon.Login) error {
-	return nil
+func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Login) error {
+	tx, err := u.DB.Begin()
 
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByEmail(ctx, tx, login.Email)
+
+	if err != nil {
+		return err
+	}
+
+	err = u.PasswordHashManager.CheckPasswordHash(login.Password, user.Password)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid password")
+	}
+
+	err = u.SessionManager.SetSessionValue(ctx, "user_id", user.UserID)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to set session value")
+	}
+
+	return nil
 }
 
-func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error {
+func (u *UserUsecaseImplementation) RegisterCustomer(ctx *gin.Context, registerCustomer httpCommon.RegisterCustomer) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error {
+func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSeller httpCommon.RegisterSeller) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) GetCustomerByID(ctx context.Context, customerID string) (httpCommon.Customer, error) {
+func (u *UserUsecaseImplementation) GetCustomerByID(ctx *gin.Context, customerID string) (httpCommon.Customer, error) {
 	return httpCommon.Customer{}, nil
 }
 
-func (u *UserUsecaseImplementation) GetSellerByID(ctx context.Context, sellerID string) (httpCommon.Seller, error) {
+func (u *UserUsecaseImplementation) GetSellerByID(ctx *gin.Context, sellerID string) (httpCommon.Seller, error) {
 	return httpCommon.Seller{}, nil
 }
 
-func (u *UserUsecaseImplementation) ForgotPassword(ctx context.Context, forgotPassword httpCommon.ForgotPassword) error {
+func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ResetPassword(ctx context.Context, id, token string) error {
+func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token string) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ChangePassword(ctx context.Context, id string, ChangePassword httpCommon.ChangePassword) error {
+func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, id string, ChangePassword httpCommon.ChangePassword) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx context.Context, customer httpCommon.Customer) error {
+func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, customer httpCommon.Customer) error {
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateSellerByID(ctx context.Context, seller httpCommon.Seller) error {
+func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller httpCommon.Seller) error {
 	return nil
 }
