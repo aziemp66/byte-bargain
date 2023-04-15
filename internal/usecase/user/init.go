@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"time"
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
@@ -60,10 +61,94 @@ func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Log
 }
 
 func (u *UserUsecaseImplementation) RegisterCustomer(ctx *gin.Context, registerCustomer httpCommon.RegisterCustomer) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByEmail(ctx, tx, registerCustomer.Email)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID != "" {
+		return errorCommon.NewInvariantError("email already registered")
+	}
+
+	hashedPassword, err := u.PasswordHashManager.HashPassword(registerCustomer.Password)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to hash password")
+	}
+
+	userId, err := u.UserRepository.InsertUser(ctx, tx, registerCustomer.Email, hashedPassword)
+
+	if err != nil {
+		return err
+	}
+
+	userBirthdate, err := time.Parse("2006-01-02", registerCustomer.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
+	err = u.UserRepository.InsertCustomer(ctx, tx, userId, registerCustomer.Name, registerCustomer.Address, registerCustomer.PhoneNumber, registerCustomer.Gender, userBirthdate)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSeller httpCommon.RegisterSeller) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByEmail(ctx, tx, registerSeller.Email)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID != "" {
+		return errorCommon.NewInvariantError("email already registered")
+	}
+
+	hashedPassword, err := u.PasswordHashManager.HashPassword(registerSeller.Password)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to hash password")
+	}
+
+	userId, err := u.UserRepository.InsertUser(ctx, tx, registerSeller.Email, hashedPassword)
+
+	if err != nil {
+		return err
+	}
+
+	userBirthdate, err := time.Parse("2006-01-02", registerSeller.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
+	err = u.UserRepository.InsertSeller(ctx, tx, userId, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

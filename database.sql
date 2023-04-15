@@ -10,7 +10,7 @@ CREATE TABLE `customer` (
     `address` VARCHAR(225) NOT NULL,
     `date_of_birth` DATE NOT NULL,
     `phone_number` VARCHAR(20) UNIQUE NOT NULL,
-    `gender` ENUM('Male', 'Female')
+    `gender` ENUM('Male', 'Female') NOT NULL,
 );
 CREATE TABLE `seller` (
     `seller_id` VARCHAR(36) PRIMARY KEY,
