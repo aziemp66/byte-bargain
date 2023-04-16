@@ -153,11 +153,73 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSel
 }
 
 func (u *UserUsecaseImplementation) GetCustomerByID(ctx *gin.Context, customerID string) (httpCommon.Customer, error) {
-	return httpCommon.Customer{}, nil
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return httpCommon.Customer{}, errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	customer, err := u.UserRepository.GetCustomerByID(ctx, tx, customerID)
+
+	if err != nil {
+		return httpCommon.Customer{}, err
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, customer.UserID)
+
+	if err != nil {
+		return httpCommon.Customer{}, err
+	}
+
+	return httpCommon.Customer{
+		UserID:      customer.UserID,
+		CustomerID:  customer.CustomerID,
+		Email:       user.Email,
+		Name:        customer.Name,
+		Address:     customer.Address,
+		PhoneNumber: customer.PhoneNumber,
+		BirthDate:   customer.BirthDate.Format("2006-01-02"),
+		Gender:      customer.Gender,
+	}, nil
+
 }
 
 func (u *UserUsecaseImplementation) GetSellerByID(ctx *gin.Context, sellerID string) (httpCommon.Seller, error) {
-	return httpCommon.Seller{}, nil
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return httpCommon.Seller{}, errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	seller, err := u.UserRepository.GetSellerByID(ctx, tx, sellerID)
+
+	if err != nil {
+		return httpCommon.Seller{}, err
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, seller.UserID)
+
+	if err != nil {
+		return httpCommon.Seller{}, err
+	}
+
+	return httpCommon.Seller{
+		UserID:         seller.UserID,
+		SellerID:       seller.SellerID,
+		Email:          user.Email,
+		Name:           seller.Name,
+		Address:        seller.Address,
+		PhoneNumber:    seller.PhoneNumber,
+		BirthDate:      seller.BirthDate.Format("2006-01-02"),
+		Gender:         seller.Gender,
+		IdentityNumber: seller.IdentityNumber,
+		BankName:       seller.BankName,
+		DebitNumber:    seller.DebitNumber,
+	}, nil
 }
 
 func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error {
