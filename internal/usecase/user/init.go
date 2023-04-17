@@ -4,12 +4,16 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"gopkg.in/gomail.v2"
+
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	jwtCommon "github.com/aziemp66/byte-bargain/common/jwt"
+	mailCommon "github.com/aziemp66/byte-bargain/common/mail"
 	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
-	"github.com/gin-gonic/gin"
 
 	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 )
@@ -19,14 +23,25 @@ type UserUsecaseImplementation struct {
 	DB                  *sql.DB
 	SessionManager      *sessionCommon.SessionManager
 	PasswordHashManager *passwordCommon.PasswordHashManager
+	JWTManager          *jwtCommon.JWTManager
+	MailDialer          *gomail.Dialer
 }
 
-func NewUserUsecaseImplementation(userRepository userRepository.Repository, db *sql.DB, sessionManager *sessionCommon.SessionManager, passwordManager *passwordCommon.PasswordHashManager) *UserUsecaseImplementation {
+func NewUserUsecaseImplementation(
+	userRepository userRepository.Repository,
+	db *sql.DB,
+	sessionManager *sessionCommon.SessionManager,
+	passwordManager *passwordCommon.PasswordHashManager,
+	jwtManager *jwtCommon.JWTManager,
+	mailDialer *gomail.Dialer,
+) *UserUsecaseImplementation {
 	return &UserUsecaseImplementation{
 		UserRepository:      userRepository,
 		DB:                  db,
 		SessionManager:      sessionManager,
 		PasswordHashManager: passwordManager,
+		JWTManager:          jwtManager,
+		MailDialer:          mailDialer,
 	}
 }
 
@@ -223,14 +238,117 @@ func (u *UserUsecaseImplementation) GetSellerByID(ctx *gin.Context, sellerID str
 }
 
 func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByEmail(ctx, tx, forgotPassword.Email)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID == "" {
+		return errorCommon.NewInvariantError("email not registered")
+	}
+
+	token, err := u.JWTManager.GenerateUserToken(user.UserID, user.Password, 3*24*time.Hour)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to generate token")
+	}
+
+	mailPasswordReset := mailCommon.PasswordReset{
+		Email: user.Email,
+		Token: token,
+	}
+
+	mailTemplate, err := mailCommon.RenderPasswordResetTemplate(mailPasswordReset, ctx.GetString("web_url"))
+
+	if err != nil {
+		return err
+	}
+
+	message := mailCommon.NewMessage(ctx.GetString("web_email"), user.Email, "Reset Password", mailTemplate)
+
+	err = u.MailDialer.DialAndSend(message)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to send email")
+	}
+
 	return nil
 }
 
 func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token string) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID == "" {
+		return errorCommon.NewInvariantError("user not found")
+	}
+
+	err = u.JWTManager.VerifyUserToken(token, user.Password)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid token")
+	}
+
 	return nil
 }
 
 func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, id string, ChangePassword httpCommon.ChangePassword) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, id)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID == "" {
+		return errorCommon.NewInvariantError("user not found")
+	}
+
+	err = u.PasswordHashManager.CheckPasswordHash(ChangePassword.OldPassword, user.Password)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid old password")
+	}
+
+	newPassword, err := u.PasswordHashManager.HashPassword(ChangePassword.NewPassword)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to hash new password")
+	}
+
+	err = u.UserRepository.UpdateUserPasswordByID(ctx, tx, id, newPassword)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
