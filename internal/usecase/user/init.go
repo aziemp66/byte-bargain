@@ -352,10 +352,66 @@ func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, id string, 
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, customer httpCommon.Customer) error {
+func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, customer httpCommon.UpdateCustomer) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	userId, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("failed to get user id")
+	}
+
+	customerBirthdate, err := time.Parse("2006-01-02", customer.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
+	err = u.UserRepository.UpdateCustomerByID(ctx, tx, userId, customer.Name, customer.Address, customer.PhoneNumber, customer.Gender, customerBirthdate)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller httpCommon.Seller) error {
+func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller httpCommon.UpdateSeller) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	userId, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("failed to get user id")
+	}
+
+	sellerBirthdate, err := time.Parse("2006-01-02", seller.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
+	err = u.UserRepository.UpdateSellerByID(ctx, tx, userId, seller.Name, seller.Address, seller.PhoneNumber, seller.Gender, seller.IdentityNumber, seller.BankName, seller.DebitNumber, sellerBirthdate)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UserUsecaseImplementation) SendActivationEmail(ctx *gin.Context, email string) error {
 	return nil
 }
