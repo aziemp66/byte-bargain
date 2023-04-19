@@ -16,7 +16,7 @@ func NewJWTManager(accessTokenKey string) *JWTManager {
 	return &JWTManager{AccessTokenKey: []byte(accessTokenKey)}
 }
 
-func (j JWTManager) GenerateUserToken(id string, password string, duration time.Duration) (string, error) {
+func (j JWTManager) GenerateUserToken(id string, duration time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaims{
 		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -26,7 +26,7 @@ func (j JWTManager) GenerateUserToken(id string, password string, duration time.
 
 	stringAccessToken := string(j.AccessTokenKey)
 
-	userAccessToken := []byte(stringAccessToken + password)
+	userAccessToken := []byte(stringAccessToken)
 
 	tokenString, err := token.SignedString(userAccessToken)
 
@@ -37,25 +37,23 @@ func (j JWTManager) GenerateUserToken(id string, password string, duration time.
 	return tokenString, nil
 }
 
-func (j JWTManager) VerifyUserToken(tokenString string, password string) (err error) {
-	claims := &UserClaims{}
-
+func (j JWTManager) VerifyUserToken(tokenString string) (claims *UserClaims, err error) {
 	stringAccessToken := string(j.AccessTokenKey)
 
-	userAccessToken := []byte(stringAccessToken + password)
+	userAccessToken := []byte(stringAccessToken)
 
 	tkn, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return userAccessToken, nil
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !tkn.Valid {
 		err = errors.New("token invalid")
-		return err
+		return nil, err
 	}
 
-	return nil
+	return claims, nil
 }

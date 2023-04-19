@@ -74,7 +74,7 @@ func (u UserRepositoryImplementation) GetSellerByID(ctx *gin.Context, tx *sql.Tx
 }
 
 func (u UserRepositoryImplementation) InsertUser(ctx *gin.Context, tx *sql.Tx, email, password string) (userID string, Error error) {
-	query := `INSERT INTO user (user_id, email, password) VALUES (?, ?)`
+	query := `INSERT INTO user (user_id, email, password) VALUES (?, ?, ?)`
 
 	userID = uuid.NewString()
 
@@ -143,6 +143,18 @@ func (u UserRepositoryImplementation) UpdateUserPasswordByID(ctx *gin.Context, t
 	query := `UPDATE user set password = ? WHERE user_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, password, userID)
+
+	if err != nil {
+		return errorCommon.NewInvariantError(err.Error())
+	}
+
+	return nil
+}
+
+func (u UserRepositoryImplementation) UpdateUserVerifiedStatusByID(ctx *gin.Context, tx *sql.Tx, userID string, status bool) error {
+	query := `UPDATE user set is_verified = ? WHERE user_id = ?`
+
+	_, err := tx.ExecContext(ctx, query, status, userID)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())

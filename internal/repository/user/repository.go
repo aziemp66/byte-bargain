@@ -19,4 +19,5 @@ type Repository interface {
 	UpdateCustomerByID(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error
 	UpdateSellerByID(ctx *gin.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error
 	UpdateUserPasswordByID(ctx *gin.Context, tx *sql.Tx, userID string, password string) error
+	UpdateUserVerifiedStatusByID(ctx *gin.Context, tx *sql.Tx, userID string, verified bool) error
 }

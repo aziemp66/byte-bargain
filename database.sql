@@ -2,6 +2,7 @@ CREATE TABLE `user` (
     `user_id` VARCHAR(36) PRIMARY KEY,
     `email` VARCHAR(225) UNIQUE NOT NULL,
     `password` VARCHAR(225) NOT NULL
+    `is_verified` BOOLEAN NOT NULL,
 );
 CREATE TABLE `customer` (
     `customer_id` VARCHAR(36) PRIMARY KEY,

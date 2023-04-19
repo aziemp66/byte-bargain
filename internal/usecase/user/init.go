@@ -118,6 +118,12 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx *gin.Context, registerC
 		return err
 	}
 
+	err = u.SendActivationEmail(ctx, registerCustomer.Email)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -159,6 +165,12 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSel
 	}
 
 	err = u.UserRepository.InsertSeller(ctx, tx, userId, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)
+
+	if err != nil {
+		return err
+	}
+
+	err = u.SendActivationEmail(ctx, registerSeller.Email)
 
 	if err != nil {
 		return err
@@ -256,7 +268,7 @@ func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassw
 		return errorCommon.NewInvariantError("email not registered")
 	}
 
-	token, err := u.JWTManager.GenerateUserToken(user.UserID, user.Password, 3*24*time.Hour)
+	token, err := u.JWTManager.GenerateUserToken(user.UserID, 3*24*time.Hour)
 
 	if err != nil {
 		return errorCommon.NewInvariantError("failed to generate token")
@@ -303,7 +315,7 @@ func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token st
 		return errorCommon.NewInvariantError("user not found")
 	}
 
-	err = u.JWTManager.VerifyUserToken(token, user.Password)
+	_, err = u.JWTManager.VerifyUserToken(token)
 
 	if err != nil {
 		return errorCommon.NewInvariantError("invalid token")
@@ -412,6 +424,82 @@ func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller ht
 	return nil
 }
 
+func (u *UserUsecaseImplementation) ActivateAccount(ctx *gin.Context, token string) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	claims, err := u.JWTManager.VerifyUserToken(token)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid token")
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, claims.ID)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID == "" {
+		return errorCommon.NewInvariantError("user not found")
+	}
+
+	err = u.UserRepository.UpdateUserVerifiedStatusByID(ctx, tx, user.UserID, true)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *UserUsecaseImplementation) SendActivationEmail(ctx *gin.Context, email string) error {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	user, err := u.UserRepository.GetUserByEmail(ctx, tx, email)
+
+	if err != nil {
+		return err
+	}
+
+	if user.UserID == "" {
+		return errorCommon.NewInvariantError("email not registered")
+	}
+
+	token, err := u.JWTManager.GenerateUserToken(user.UserID, 3*24*time.Hour)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to generate token")
+	}
+
+	mailActivation := mailCommon.EmailVerification{
+		Token: token,
+	}
+
+	mailTemplate, err := mailCommon.RenderEmailVerificationTemplate(mailActivation, ctx.GetString("web_url"))
+
+	if err != nil {
+		return err
+	}
+
+	message := mailCommon.NewMessage(ctx.GetString("web_email"), user.Email, "Activate Account", mailTemplate)
+
+	err = u.MailDialer.DialAndSend(message)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("failed to send email")
+	}
+
 	return nil
 }
