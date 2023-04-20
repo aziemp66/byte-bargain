@@ -16,6 +16,8 @@ type Repository interface {
 	GetOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) (productDomain.OrderProduct, error)
 	GetCartByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) (productDomain.Cart, error)
 	GetCartProductByCartID(ctx *gin.Context, tx *sql.Tx, cartID string) ([]productDomain.CartProduct, error)
+	GetOrderProductByOrderID(ctx *gin.Context, tx *sql.Tx, orderID string) ([]productDomain.OrderProduct, error)
+	GetAllOrderProduct(ctx *gin.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error)
 	GetPaymentByID(ctx *gin.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error)
 	InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName, price, stock, category, description, weight string) error
 	InsertOrder(ctx *gin.Context, tx *sql.Tx, customerID, sellerID, orderDate, status string) error
@@ -25,7 +27,7 @@ type Repository interface {
 	UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error
 	UpdateOrderStatusByID(ctx *gin.Context, tx *sql.Tx, orderID, status string) error
 	UpdateOrderProductQtyByID(ctx *gin.Context, tx *sql.Tx, orderProductID, quantity string) error
-	UpdateCardProductQtyByID(ctx *gin.Context, tx *sql.Tx, cartProductID, quantity string) error
+	UpdateCartProductQtyByID(ctx *gin.Context, tx *sql.Tx, cartProductID, quantity string) error
 	DeleteProductByID(ctx *gin.Context, tx *sql.Tx, productID string) error
 	DeleteOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) error
 	DeleteCartProductByID(ctx *gin.Context, tx *sql.Tx, cartProductID string) error
