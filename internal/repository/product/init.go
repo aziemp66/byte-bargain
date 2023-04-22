@@ -256,9 +256,11 @@ func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx *gin.Context, tx
 }
 
 func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName, price, stock, category, description, weight string) error {
-	query := `INSERT INTO product (seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO product (product_id, seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?)`
 
-	_, err := tx.ExecContext(ctx, query, sellerID, productName, price, stock, category, description, weight)
+	productID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, productID, sellerID, productName, price, stock, category, description, weight)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -268,9 +270,11 @@ func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql
 }
 
 func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.Tx, customerID, sellerID, orderDate, status string) error {
-	query := `INSERT INTO orders (customer_id, seller_id, order_date, status) VALUES (?, ?, ?, ?)`
+	query := `INSERT INTO orders (order_id, customer_id, seller_id, order_date, status) VALUES (?, ?, ?, ?)`
 
-	_, err := tx.ExecContext(ctx, query, customerID, sellerID, orderDate, status)
+	orderID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, orderID, customerID, sellerID, orderDate, status)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -280,9 +284,11 @@ func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.T
 }
 
 func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx *sql.Tx, orderID, productID, quantity string) error {
-	query := `INSERT INTO order_product (order_id, product_id, quantity) VALUES (?, ?, ?)`
+	query := `INSERT INTO order_product (order_product_id, order_id, product_id, quantity) VALUES (?, ?, ?)`
 
-	_, err := tx.ExecContext(ctx, query, orderID, productID, quantity)
+	orderProductID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, orderProductID, orderID, productID, quantity)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -292,9 +298,11 @@ func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx
 }
 
 func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx *sql.Tx, cartID, productID, quantity string) error {
-	query := `INSERT INTO cart_product (cart_id, product_id, quantity) VALUES (?, ?, ?)`
+	query := `INSERT INTO cart_product (cart_product_id, cart_id, product_id, quantity) VALUES (?, ?, ?)`
 
-	_, err := tx.ExecContext(ctx, query, cartID, productID, quantity)
+	cartProductID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, cartProductID, cartID, productID, quantity)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -304,9 +312,11 @@ func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx 
 }
 
 func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql.Tx, orderID, paymentDate, totalPayment, paymentMethod string) error {
-	query := `INSERT INTO payment (order_id, payment_date, total_payment, payment_method) VALUES (?, ?, ?, ?)`
+	query := `INSERT INTO payment (payment_id, order_id, payment_date, total_payment, payment_method) VALUES (?, ?, ?, ?)`
 
-	_, err := tx.ExecContext(ctx, query, orderID, paymentDate, totalPayment, paymentMethod)
+	paymentID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, paymentID, orderID, paymentDate, totalPayment, paymentMethod)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
@@ -315,18 +325,18 @@ func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.Tx, image string) error {
+func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.Tx, image string) (imageID string, err error) {
 	query := `INSERT INTO image (product_image_id, image) VALUES (?, ?)`
 
 	productImageID := uuid.New().String()
 
-	_, err := tx.ExecContext(ctx, query, productImageID, image)
+	_, err = tx.ExecContext(ctx, query, productImageID, image)
 
 	if err != nil {
-		return errorCommon.NewInvariantError(err.Error())
+		return "", errorCommon.NewInvariantError(err.Error())
 	}
 
-	return nil
+	return productImageID, nil
 }
 
 func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error {
