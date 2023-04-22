@@ -171,6 +171,11 @@ func (p ProductUsecaseImplementation) InsertPayment(ctx *gin.Context, payment ht
 	panic("implement me")
 }
 
+func (p ProductUsecaseImplementation) InsertImages(ctx *gin.Context) (imagesPath []string, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (p ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.Product) error {
 	//TODO implement me
 	panic("implement me")
