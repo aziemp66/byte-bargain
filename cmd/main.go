@@ -13,14 +13,15 @@ import (
 
 func main() {
 	cfg := envCommon.LoadConfig()
+
 	goviewConfig := goview.Config{
 		Root:         "webviews",
 		Extension:    ".html",
 		Master:       "layouts/master",
 		DisableCache: false,
 		Delims: goview.Delims{
-			Left:  "{{",
-			Right: "}}",
+			Left:  `{{`,
+			Right: `}}`,
 		},
 	}
 
@@ -31,7 +32,12 @@ func main() {
 	sessionManager := sessionCommon.NewSessionManager([]byte(cfg.AccessTokenKey))
 
 	httpServer.Router.Use(sessionManager.GetSessionHandler())
-	httpServer.Router.Use(httpCommon.MiddlewareErrorHandler())
+
+	httpServer.Router.Static("/product_image", "./public/product_image")
+
+	api := httpServer.Router.Group("/api")
+
+	api.Use(httpCommon.MiddlewareErrorHandler())
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
 

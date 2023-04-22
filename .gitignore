@@ -5,3 +5,15 @@
 
 # environment files
 .env
+
+# application logs
+application.log
+
+# Ignore everything in the upload directory
+/public/**/*
+
+# But not these files...
+!.gitkeep
+
+# ...even if they are in subdirectories
+!public/*/
