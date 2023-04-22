@@ -47,7 +47,7 @@ CREATE TABLE `order_product` (
     `order_product_id` VARCHAR(36) PRIMARY KEY,
     `product_id` VARCHAR(36) NOT NULL,
     `order_id` VARCHAR(36) NOT NULL,
-    `qty` INT NOT NULL
+    `quantity` INT NOT NULL
 );
 CREATE TABLE `cart` (
     `cart_id` VARCHAR(36) PRIMARY KEY,
@@ -57,7 +57,7 @@ CREATE TABLE `cart_product` (
     `cart_product_id` VARCHAR(36) PRIMARY KEY,
     `product_id` VARCHAR(36) NOT NULL,
     `cart_id` VARCHAR(36) NOT NULL,
-    `qty` INT NOT NULL
+    `quantity` INT NOT NULL
 )
 CREATE TABLE `payment` (
     `payment_id` VARCHAR(36) PRIMARY KEY,

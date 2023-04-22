@@ -3,8 +3,10 @@ package product
 import (
 	"database/sql"
 
-	httpCommon "github.com/aziemp66/byte-bargain/common/http"
 	"github.com/gin-gonic/gin"
+
+	dbCommon "github.com/aziemp66/byte-bargain/common/db"
+	httpCommon "github.com/aziemp66/byte-bargain/common/http"
 
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
 )
@@ -22,8 +24,81 @@ func NewProductUsecaseImplementation(productRepository productRepository.Reposit
 }
 
 func (p ProductUsecaseImplementation) GetRecommendedProduct(ctx *gin.Context) ([]httpCommon.Product, error) {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	orderProducts, err := p.ProductRepository.GetAllOrderProduct(ctx, tx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	type productCount struct {
+		ProductID string
+		Count     int
+	}
+
+	var productCounts []productCount
+
+	for _, orderProduct := range orderProducts {
+		var isExist bool
+
+		for i, productCount := range productCounts {
+			if productCount.ProductID == orderProduct.ProductID {
+				productCounts[i].Count++
+				isExist = true
+				break
+			}
+		}
+
+		if !isExist {
+			productCounts = append(productCounts, productCount{
+				ProductID: orderProduct.ProductID,
+				Count:     1,
+			})
+		}
+	}
+
+	for i := range productCounts {
+		for j := range productCounts {
+			if productCounts[i].Count > productCounts[j].Count {
+				productCounts[i], productCounts[j] = productCounts[j], productCounts[i]
+			}
+		}
+	}
+
+	//get only 20 product
+	if len(productCounts) > 20 {
+		productCounts = productCounts[:20]
+	}
+
+	var recommenddedProducts []httpCommon.Product
+
+	for _, productCount := range productCounts {
+		product, err := p.ProductRepository.GetProductByID(ctx, tx, productCount.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		recommenddedProducts = append(recommenddedProducts, httpCommon.Product{
+			ID:          product.ProductID,
+			SellerID:    product.SellerID,
+			Name:        product.Name,
+			Price:       product.Price,
+			Stock:       product.Stock,
+			Category:    product.Category,
+			Description: product.Description,
+			Weight:      product.Weight,
+		})
+	}
+
+	return recommenddedProducts, nil
 }
 
 func (p ProductUsecaseImplementation) GetSearchedProduct(ctx *gin.Context, search string) ([]httpCommon.Product, error) {
