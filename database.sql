@@ -36,6 +36,11 @@ CREATE TABLE `product` (
     `stock` INT NOT NULL,
     `weight` FLOAT NOT NULL
 );
+CREATE TABLE `product_image` (
+    `product_image_id` VARCHAR(36) PRIMARY KEY,
+    `product_id` VARCHAR(36),
+    `image_url` VARCHAR(225) NOT NULL
+);
 CREATE TABLE `order` (
     `order_id` VARCHAR(36) PRIMARY KEY,
     `customer_id` VARCHAR(36) NOT NULL,

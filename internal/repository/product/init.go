@@ -6,6 +6,7 @@ import (
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	productDomain "github.com/aziemp66/byte-bargain/internal/domain/product"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ProductRepositoryImplementation struct {
@@ -314,6 +315,20 @@ func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql
 	return nil
 }
 
+func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.Tx, image string) error {
+	query := `INSERT INTO image (product_image_id, image) VALUES (?, ?)`
+
+	productImageID := uuid.New().String()
+
+	_, err := tx.ExecContext(ctx, query, productImageID, image)
+
+	if err != nil {
+		return errorCommon.NewInvariantError(err.Error())
+	}
+
+	return nil
+}
+
 func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error {
 	query := `UPDATE product SET seller_id = ?, name = ?, price = ?, stock = ?, category = ?, description = ?, weight = ? WHERE product_id = ?`
 
@@ -354,6 +369,18 @@ func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx *gin.Conte
 	query := `UPDATE cart_product SET qty = ? WHERE cart_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, cartProductID)
+
+	if err != nil {
+		return errorCommon.NewInvariantError(err.Error())
+	}
+
+	return nil
+}
+
+func (p ProductRepositoryImplementation) UpdateLinkImageByID(ctx *gin.Context, tx *sql.Tx, imageID, productID string) error {
+	query := `UPDATE image SET product_id = ? WHERE product_image_id = ?`
+
+	_, err := tx.ExecContext(ctx, query, productID, imageID)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())

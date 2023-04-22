@@ -13,6 +13,11 @@ type (
 		Description string  `json:"description"`
 		Weight      float64 `json:"weight"`
 	}
+	ProductImage struct {
+		ProductImageID string `json:"product_image_id"`
+		ProductID      string `json:"product_id"`
+		Image          string `json:"image"`
+	}
 	Order struct {
 		OrderID    string `json:"order_id"`
 		CustomerID string `json:"customer_id"`

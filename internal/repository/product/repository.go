@@ -24,10 +24,12 @@ type Repository interface {
 	InsertOrderProduct(ctx *gin.Context, tx *sql.Tx, orderID, productID, quantity string) error
 	InsertCartProduct(ctx *gin.Context, tx *sql.Tx, cartID, productID, quantity string) error
 	InsertPayment(ctx *gin.Context, tx *sql.Tx, orderID, paymentDate, totalPayment, paymentMethod string) error
+	InsertImage(ctx *gin.Context, tx *sql.Tx, image string) error
 	UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error
 	UpdateOrderStatusByID(ctx *gin.Context, tx *sql.Tx, orderID, status string) error
 	UpdateOrderProductQtyByID(ctx *gin.Context, tx *sql.Tx, orderProductID, quantity string) error
 	UpdateCartProductQtyByID(ctx *gin.Context, tx *sql.Tx, cartProductID, quantity string) error
+	UpdateLinkImageByID(ctx *gin.Context, tx *sql.Tx, imageID, productID string) error
 	DeleteProductByID(ctx *gin.Context, tx *sql.Tx, productID string) error
 	DeleteOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) error
 	DeleteCartProductByID(ctx *gin.Context, tx *sql.Tx, cartProductID string) error
