@@ -142,26 +142,12 @@ func (p ProductRepositoryImplementation) GetOrderProductByID(ctx *gin.Context, t
 	return orderProduct, nil
 }
 
-func (p ProductRepositoryImplementation) GetCartByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) (productDomain.Cart, error) {
-	var cart productDomain.Cart
-
-	query := `SELECT cart_id, customer_id FROM cart WHERE customer_id = ?`
-
-	err := tx.QueryRowContext(ctx, query, customerID).Scan(&cart.CartID, &cart.CustomerID)
-
-	if err != nil {
-		return cart, errorCommon.NewInvariantError(err.Error())
-	}
-
-	return cart, nil
-}
-
-func (p ProductRepositoryImplementation) GetCartProductByCartID(ctx *gin.Context, tx *sql.Tx, cartID string) ([]productDomain.CartProduct, error) {
+func (p ProductRepositoryImplementation) GetCartProductByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error) {
 	var cartProducts []productDomain.CartProduct
 
-	query := `SELECT cart_product_id, cart_id, product_id, quantity FROM cart_product WHERE cart_id = ?`
+	query := `SELECT cart_product_id, customer_id, product_id, quantity FROM cart_product WHERE customer_id = ?`
 
-	rows, err := tx.QueryContext(ctx, query, cartID)
+	rows, err := tx.QueryContext(ctx, query, customerID)
 
 	if err != nil {
 		return cartProducts, errorCommon.NewInvariantError(err.Error())
@@ -172,7 +158,7 @@ func (p ProductRepositoryImplementation) GetCartProductByCartID(ctx *gin.Context
 	for rows.Next() {
 		var cartProduct productDomain.CartProduct
 
-		err = rows.Scan(&cartProduct.CartProductID, &cartProduct.CartID, &cartProduct.ProductID, &cartProduct.Quantity)
+		err = rows.Scan(&cartProduct.CartProductID, &cartProduct.CustomerID, &cartProduct.ProductID, &cartProduct.Quantity)
 
 		if err != nil {
 			return cartProducts, errorCommon.NewInvariantError(err.Error())

@@ -31,15 +31,9 @@ type (
 		ProductID      string `json:"product_id"`
 		Quantity       int    `json:"quantity"`
 	}
-
-	Cart struct {
-		CartID     string `json:"cart_id"`
-		CustomerID string `json:"customer_id"`
-	}
-
 	CartProduct struct {
 		CartProductID string `json:"cart_product_id"`
-		CartID        string `json:"cart_id"`
+		CustomerID    string `json:"customer_id"`
 		ProductID     string `json:"product_id"`
 		Quantity      int    `json:"quantity"`
 	}

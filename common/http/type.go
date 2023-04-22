@@ -146,11 +146,6 @@ type (
 		TotalPayment float64       `json:"total_payment"`
 	}
 
-	CartItems struct {
-		CartID     string        `json:"cart_id"`
-		CustomerID string        `json:"customer_id"`
-		Products   []ProductItem `json:"products"`
-	}
 	CartProduct struct {
 		CartProductID string `json:"cart_product_id"`
 		CartID        string `json:"cart_id"`

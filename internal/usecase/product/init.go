@@ -136,7 +136,7 @@ func (p ProductUsecaseImplementation) GetOrderProductByID(ctx *gin.Context, orde
 	panic("implement me")
 }
 
-func (p ProductUsecaseImplementation) GetCustomerCart(ctx *gin.Context, customerID string) (httpCommon.CartItems, error) {
+func (p ProductUsecaseImplementation) GetCustomerCart(ctx *gin.Context, customerID string) ([]httpCommon.ProductItem, error) {
 	//TODO implement me
 	panic("implement me")
 }

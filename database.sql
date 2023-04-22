@@ -54,14 +54,10 @@ CREATE TABLE `order_product` (
     `order_id` VARCHAR(36) NOT NULL,
     `quantity` INT NOT NULL
 );
-CREATE TABLE `cart` (
-    `cart_id` VARCHAR(36) PRIMARY KEY,
-    `customer_id` VARCHAR(36) NOT NULL,
-)
 CREATE TABLE `cart_product` (
     `cart_product_id` VARCHAR(36) PRIMARY KEY,
+    `customer_id` VARCHAR(36) NOT NULL,
     `product_id` VARCHAR(36) NOT NULL,
-    `cart_id` VARCHAR(36) NOT NULL,
     `quantity` INT NOT NULL
 )
 CREATE TABLE `payment` (
