@@ -59,12 +59,40 @@ func (u UserRepositoryImplementation) GetCustomerByID(ctx *gin.Context, tx *sql.
 	return customer, nil
 }
 
+func (u UserRepositoryImplementation) GetCustomerByUserID(ctx *gin.Context, tx *sql.Tx, userID string) (userDomain.Customer, error) {
+	var customer userDomain.Customer
+
+	query := `SELECT customer_id, user_id, name, address, date_of_birth, phone_number, gender FROM customer WHERE user_id = ?`
+
+	err := tx.QueryRowContext(ctx, query, userID).Scan(&customer.CustomerID, &customer.UserID, &customer.Name, &customer.Address, &customer.BirthDate, &customer.PhoneNumber, &customer.Gender)
+
+	if err != nil {
+		return customer, errorCommon.NewInvariantError(err.Error())
+	}
+
+	return customer, nil
+}
+
 func (u UserRepositoryImplementation) GetSellerByID(ctx *gin.Context, tx *sql.Tx, sellerID string) (userDomain.Seller, error) {
 	var seller userDomain.Seller
 
 	query := `Select seller_id, user_id, name, address, date_of_birth, phone_number, gender, identity_number, bank_name, debit_number FROM seller WHERE seller_id = ?`
 
 	err := tx.QueryRowContext(ctx, query, sellerID).Scan(&seller.SellerID, &seller.UserID, &seller.Name, &seller.Address, &seller.BirthDate, &seller.PhoneNumber, &seller.Gender, &seller.IdentityNumber, &seller.BankName, &seller.DebitNumber)
+
+	if err != nil {
+		return seller, errorCommon.NewInvariantError(err.Error())
+	}
+
+	return seller, nil
+}
+
+func (u UserRepositoryImplementation) GetSellerByUserID(ctx *gin.Context, tx *sql.Tx, userID string) (userDomain.Seller, error) {
+	var seller userDomain.Seller
+
+	query := `Select seller_id, user_id, name, address, date_of_birth, phone_number, gender, identity_number, bank_name, debit_number FROM seller WHERE user_id = ?`
+
+	err := tx.QueryRowContext(ctx, query, userID).Scan(&seller.SellerID, &seller.UserID, &seller.Name, &seller.Address, &seller.BirthDate, &seller.PhoneNumber, &seller.Gender, &seller.IdentityNumber, &seller.BankName, &seller.DebitNumber)
 
 	if err != nil {
 		return seller, errorCommon.NewInvariantError(err.Error())

@@ -72,6 +72,34 @@ func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Log
 		return errorCommon.NewInvariantError("failed to set session value")
 	}
 
+	customer, err := u.UserRepository.GetCustomerByUserID(ctx, tx, user.UserID)
+
+	if err != nil {
+		return err
+	}
+
+	if customer.CustomerID != "" {
+		err = u.SessionManager.SetSessionValue(ctx, "customer_id", customer.CustomerID)
+
+		if err != nil {
+			return errorCommon.NewInvariantError("failed to set session value")
+		}
+	}
+
+	seller, err := u.UserRepository.GetSellerByUserID(ctx, tx, user.UserID)
+
+	if err != nil {
+		return err
+	}
+
+	if seller.SellerID != "" {
+		err = u.SessionManager.SetSessionValue(ctx, "seller_id", seller.SellerID)
+
+		if err != nil {
+			return errorCommon.NewInvariantError("failed to set session value")
+		}
+	}
+
 	return nil
 }
 
