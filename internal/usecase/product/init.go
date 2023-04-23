@@ -662,16 +662,55 @@ func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx *gin.Context
 }
 
 func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, productID string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.DeleteProductByID(ctx, tx, productID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) DeleteOrderProductByID(ctx *gin.Context, orderProductID string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.DeleteOrderProductByID(ctx, tx, orderProductID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) DeleteCartProductByID(ctx *gin.Context, cartProductID string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.DeleteCartProductByID(ctx, tx, cartProductID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
