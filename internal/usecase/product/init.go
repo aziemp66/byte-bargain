@@ -590,23 +590,75 @@ func (p *ProductUsecaseImplementation) InsertImages(ctx *gin.Context) (imagesID 
 }
 
 func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.Product) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.UpdateProductByID(ctx, tx, productID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, orderID, status string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.UpdateOrderStatusByID(ctx, tx, orderID, status)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx *gin.Context, orderProductID, quantity string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.UpdateOrderProductQtyByID(ctx, tx, orderProductID, quantity)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx *gin.Context, cartProductID, quantity string) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	err = p.ProductRepository.UpdateCartProductQtyByID(ctx, tx, cartProductID, quantity)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, productID string) error {

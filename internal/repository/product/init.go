@@ -382,10 +382,10 @@ func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.T
 	return productImageID, nil
 }
 
-func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, sellerID, productName, price, stock, category, description, weight string) error {
-	query := `UPDATE product SET seller_id = ?, name = ?, price = ?, stock = ?, category = ?, description = ?, weight = ? WHERE product_id = ?`
+func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error {
+	query := `UPDATE product SET name = ?, price = ?, stock = ?, category = ?, description = ?, weight = ? WHERE product_id = ?`
 
-	_, err := tx.ExecContext(ctx, query, sellerID, productName, price, stock, category, description, weight, productID)
+	_, err := tx.ExecContext(ctx, query, productName, price, stock, category, description, weight, productID)
 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
