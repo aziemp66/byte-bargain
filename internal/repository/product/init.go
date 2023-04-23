@@ -2,6 +2,7 @@ package order
 
 import (
 	"database/sql"
+	"time"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	productDomain "github.com/aziemp66/byte-bargain/internal/domain/product"
@@ -297,7 +298,7 @@ func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx *gin.Context, tx
 	return orderProducts, nil
 }
 
-func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName, price, stock, category, description, weight string) error {
+func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error {
 	query := `INSERT INTO product (product_id, seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	productID := uuid.New().String()
@@ -311,7 +312,7 @@ func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.Tx, customerID, sellerID, orderDate, status string) error {
+func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error {
 	query := `INSERT INTO orders (order_id, customer_id, seller_id, order_date, status) VALUES (?, ?, ?, ?)`
 
 	orderID := uuid.New().String()
@@ -325,7 +326,7 @@ func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.T
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx *sql.Tx, orderID, productID, quantity string) error {
+func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx *sql.Tx, orderID, productID string, quantity int) error {
 	query := `INSERT INTO order_product (order_product_id, order_id, product_id, quantity) VALUES (?, ?, ?)`
 
 	orderProductID := uuid.New().String()
@@ -339,7 +340,7 @@ func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx *sql.Tx, cartID, productID, quantity string) error {
+func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx *sql.Tx, cartID, productID string, quantity int) error {
 	query := `INSERT INTO cart_product (cart_product_id, cart_id, product_id, quantity) VALUES (?, ?, ?)`
 
 	cartProductID := uuid.New().String()
@@ -353,7 +354,7 @@ func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx 
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql.Tx, orderID, paymentDate, totalPayment, paymentMethod string) error {
+func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql.Tx, orderID string, paymentDate time.Time, totalPayment float64, paymentMethod string) error {
 	query := `INSERT INTO payment (payment_id, order_id, payment_date, total_payment, payment_method) VALUES (?, ?, ?, ?)`
 
 	paymentID := uuid.New().String()

@@ -21,7 +21,7 @@ type Usecase interface {
 	InsertOrderProduct(ctx *gin.Context, orderProduct httpCommon.OrderProduct) error
 	InsertCartProduct(ctx *gin.Context, cartProduct httpCommon.CartProduct) error
 	InsertPayment(ctx *gin.Context, payment httpCommon.Payment) error
-	InsertImages(ctx *gin.Context) (imagesPath []string, err error)
+	InsertImages(ctx *gin.Context) (imagesID []string, err error)
 	UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.Product) error
 	UpdateOrderStatusByID(ctx *gin.Context, orderID, status string) error
 	UpdateOrderProductQtyByID(ctx *gin.Context, orderProductID, quantity string) error

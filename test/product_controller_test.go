@@ -12,6 +12,7 @@ import (
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 	productController "github.com/aziemp66/byte-bargain/internal/controller/product"
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
 	productUsecase "github.com/aziemp66/byte-bargain/internal/usecase/product"
@@ -25,8 +26,9 @@ func getDummyProductController() *gin.Engine {
 	productGroup := router.Group("/api/product")
 
 	testDb := dbCommon.NewDB("root:azie122333@tcp(localhost:3306)/test_byte_bargain?charset=utf8mb4&parseTime=True&loc=Local")
+	testSession := sessionCommon.NewSessionManager([]byte("secret"))
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
-	ProductUsecase := productUsecase.NewProductUsecaseImplementation(ProductRepository, testDb)
+	ProductUsecase := productUsecase.NewProductUsecaseImplementation(ProductRepository, testDb, testSession)
 	productController.NewProductController(productGroup, ProductUsecase)
 
 	return router
