@@ -13,9 +13,11 @@ type Repository interface {
 	GetAllProductBySellerID(ctx *gin.Context, tx *sql.Tx, sellerID string) ([]productDomain.Product, error)
 	GetProductByID(ctx *gin.Context, tx *sql.Tx, productID string) (productDomain.Product, error)
 	GetOrderByID(ctx *gin.Context, tx *sql.Tx, orderID string) (productDomain.Order, error)
+	GetOrderByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.Order, error)
+	GetOrderBySellerID(ctx *gin.Context, tx *sql.Tx, sellerID string) ([]productDomain.Order, error)
 	GetOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) (productDomain.OrderProduct, error)
-	GetCartProductByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error)
 	GetOrderProductByOrderID(ctx *gin.Context, tx *sql.Tx, orderID string) ([]productDomain.OrderProduct, error)
+	GetCartProductByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error)
 	GetAllOrderProduct(ctx *gin.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error)
 	GetPaymentByID(ctx *gin.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error)
 	InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName, price, stock, category, description, weight string) error

@@ -119,6 +119,11 @@ type (
 		Qty       int    `json:"qty"`
 	}
 
+	Cart struct {
+		Items        []CartProduct `json:"items"`
+		TotalPayment float64       `json:"total_payment"`
+	}
+
 	CreateOrder struct {
 		SellerID string        `json:"seller_id"`
 		Items    []ProductItem `json:"items"`
@@ -149,10 +154,10 @@ type (
 	}
 
 	CartProduct struct {
-		CartProductID string `json:"cart_product_id"`
-		CartID        string `json:"cart_id"`
-		ProductID     string `json:"product_id"`
-		Qty           int    `json:"qty"`
+		CartProductID string  `json:"cart_product_id"`
+		ProductID     string  `json:"product_id"`
+		Price         float64 `json:"price"`
+		Qty           int     `json:"qty"`
 	}
 	UpdateOrderStatus struct {
 		OrderID string `json:"order_id"`
@@ -165,6 +170,7 @@ type (
 	}
 
 	Payment struct {
+		PaymentID     string  `json:"payment_id"`
 		OrderID       string  `json:"order_id"`
 		PaymentDate   string  `json:"payment_date"`
 		TotalPayment  float64 `json:"total_payment"`

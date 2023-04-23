@@ -142,6 +142,62 @@ func (p ProductRepositoryImplementation) GetOrderProductByID(ctx *gin.Context, t
 	return orderProduct, nil
 }
 
+func (p ProductRepositoryImplementation) GetOrderByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.Order, error) {
+	var orders []productDomain.Order
+
+	query := `SELECT order_id, customer_id, seller_id, order_date, status FROM orders WHERE customer_id = ?`
+
+	rows, err := tx.QueryContext(ctx, query, customerID)
+
+	if err != nil {
+		return orders, errorCommon.NewInvariantError(err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var order productDomain.Order
+
+		err = rows.Scan(&order.OrderID, &order.CustomerID, &order.SellerID, &order.OrderDate, &order.Status)
+
+		if err != nil {
+			return orders, errorCommon.NewInvariantError(err.Error())
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
+
+func (p ProductRepositoryImplementation) GetOrderBySellerID(ctx *gin.Context, tx *sql.Tx, sellerID string) ([]productDomain.Order, error) {
+	var orders []productDomain.Order
+
+	query := `SELECT order_id, customer_id, seller_id, order_date, status FROM orders WHERE seller_id = ?`
+
+	rows, err := tx.QueryContext(ctx, query, sellerID)
+
+	if err != nil {
+		return orders, errorCommon.NewInvariantError(err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var order productDomain.Order
+
+		err = rows.Scan(&order.OrderID, &order.CustomerID, &order.SellerID, &order.OrderDate, &order.Status)
+
+		if err != nil {
+			return orders, errorCommon.NewInvariantError(err.Error())
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
+
 func (p ProductRepositoryImplementation) GetCartProductByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error) {
 	var cartProducts []productDomain.CartProduct
 

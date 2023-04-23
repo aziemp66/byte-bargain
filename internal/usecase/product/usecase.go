@@ -8,13 +8,13 @@ import (
 type Usecase interface {
 	GetRecommendedProduct(ctx *gin.Context) ([]httpCommon.Product, error)
 	GetSearchedProduct(ctx *gin.Context, search string) ([]httpCommon.Product, error)
-	GetAllProductBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.Product, error)
+	GetProductBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.Product, error)
 	GetProductByID(ctx *gin.Context, productID string) (httpCommon.Product, error)
 	GetOrderByID(ctx *gin.Context, orderID string) (httpCommon.Order, error)
-	GetCustomerOrderByID(ctx *gin.Context, customerID string) ([]httpCommon.OrderItems, error)
+	GetOrderByCustomerID(ctx *gin.Context, customerID string) ([]httpCommon.OrderItems, error)
 	GetSellerOrderByID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error)
 	GetOrderProductByID(ctx *gin.Context, orderProductID string) (httpCommon.OrderProduct, error)
-	GetCustomerCart(ctx *gin.Context, customerID string) ([]httpCommon.ProductItem, error)
+	GetCustomerCart(ctx *gin.Context, customerID string) (httpCommon.Cart, error)
 	GetPaymentByID(ctx *gin.Context, paymentID string) (httpCommon.Payment, error)
 	InsertProduct(ctx *gin.Context, product httpCommon.AddProduct) error
 	InsertOrder(ctx *gin.Context, createOrder httpCommon.CreateOrder) error
