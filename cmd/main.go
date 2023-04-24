@@ -34,6 +34,7 @@ func main() {
 	httpServer.Router.Use(sessionManager.GetSessionHandler())
 
 	httpServer.Router.Static("/product_image", "./public/product_image")
+	httpServer.Router.Static("/static", "./web/static")
 
 	api := httpServer.Router.Group("/api")
 
