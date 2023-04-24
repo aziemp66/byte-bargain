@@ -15,7 +15,7 @@ func main() {
 	cfg := envCommon.LoadConfig()
 
 	goviewConfig := goview.Config{
-		Root:         "webviews",
+		Root:         "web/views",
 		Extension:    ".html",
 		Master:       "layouts/master",
 		DisableCache: false,
