@@ -17,14 +17,11 @@ func NewUserController(router *gin.RouterGroup, userUsecase userUseCase.Usecase)
 	router.POST("/login", userController.Login)
 	router.POST("/register/customer", userController.RegisterCustomer)
 	router.POST("/register/seller", userController.RegisterSeller)
-	router.GET("/customer/:id", userController.GetCustomerByID)
-	router.GET("/seller/:id", userController.GetSellerByID)
 	router.POST("/forgot-password", userController.ForgotPassword)
 	router.POST("/reset-password/:id/:token", userController.ResetPassword)
 	router.POST("/change-password/:id", userController.ChangePassword)
 	router.PUT("/customer/:id", userController.UpdateCustomerByID)
 	router.PUT("/seller/:id", userController.UpdateSellerByID)
-
 }
 
 func (u *UserController) Login(c *gin.Context) {
