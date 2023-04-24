@@ -44,6 +44,11 @@ type (
 		Email string `json:"email"`
 	}
 
+	ResetPassword struct {
+		Password string `json:"password"`
+		Token    string `json:"token"`
+	}
+
 	ChangePassword struct {
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password"`

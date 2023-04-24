@@ -324,7 +324,7 @@ func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassw
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token string) error {
+func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, resetPassword httpCommon.ResetPassword) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -333,7 +333,13 @@ func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token st
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	user, err := u.UserRepository.GetUserByID(ctx, tx, id)
+	claims, err := u.JWTManager.VerifyUserToken(resetPassword.Token)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid token")
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, claims.ID)
 
 	if err != nil {
 		return err
@@ -343,16 +349,22 @@ func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, id, token st
 		return errorCommon.NewInvariantError("user not found")
 	}
 
-	_, err = u.JWTManager.VerifyUserToken(token)
+	newPassword, err := u.PasswordHashManager.HashPassword(resetPassword.Password)
 
 	if err != nil {
-		return errorCommon.NewInvariantError("invalid token")
+		return errorCommon.NewInvariantError("failed to hash password")
+	}
+
+	err = u.UserRepository.UpdateUserPasswordByID(ctx, tx, claims.ID, newPassword)
+
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, id string, ChangePassword httpCommon.ChangePassword) error {
+func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, ChangePassword httpCommon.ChangePassword) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -360,6 +372,12 @@ func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, id string, 
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
+
+	id, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("invalid session")
+	}
 
 	user, err := u.UserRepository.GetUserByID(ctx, tx, id)
 

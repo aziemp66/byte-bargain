@@ -12,8 +12,8 @@ type Usecase interface {
 	GetCustomerByID(ctx *gin.Context, customerID string) (httpCommon.Customer, error)
 	GetSellerByID(ctx *gin.Context, sellerID string) (httpCommon.Seller, error)
 	ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error
-	ResetPassword(ctx *gin.Context, id, token string) error
-	ChangePassword(ctx *gin.Context, id string, ChangePassword httpCommon.ChangePassword) error
+	ResetPassword(ctx *gin.Context, resetPassword httpCommon.ResetPassword) error
+	ChangePassword(ctx *gin.Context, ChangePassword httpCommon.ChangePassword) error
 	UpdateCustomerByID(ctx *gin.Context, customer httpCommon.UpdateCustomer) error
 	UpdateSellerByID(ctx *gin.Context, seller httpCommon.UpdateSeller) error
 	ActivateAccount(ctx *gin.Context, token string) error
