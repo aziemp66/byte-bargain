@@ -17,6 +17,12 @@ type (
 		Password string `json:"password"`
 	}
 
+	User struct {
+		UserID   string `json:"user_id"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
 	RegisterCustomer struct {
 		Email       string `json:"email"`
 		Password    string `json:"password"`
@@ -110,7 +116,7 @@ type (
 		Image       []string `json:"image"`
 	}
 
-	AddProduct struct {
+	ProductRequest struct {
 		Name        string   `json:"name"`
 		Price       float64  `json:"price"`
 		Stock       int      `json:"stock"`
@@ -164,6 +170,12 @@ type (
 		Price         float64 `json:"price"`
 		Qty           int     `json:"qty"`
 	}
+
+	AddCartProduct struct {
+		ProductID string `json:"product_id"`
+		Qty       int    `json:"qty"`
+	}
+
 	UpdateOrderStatus struct {
 		OrderID string `json:"order_id"`
 		Status  string `json:"status"`

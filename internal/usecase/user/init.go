@@ -72,34 +72,6 @@ func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Log
 		return errorCommon.NewInvariantError("failed to set session value")
 	}
 
-	customer, err := u.UserRepository.GetCustomerByUserID(ctx, tx, user.UserID)
-
-	if err != nil {
-		return err
-	}
-
-	if customer.CustomerID != "" {
-		err = u.SessionManager.SetSessionValue(ctx, "customer_id", customer.CustomerID)
-
-		if err != nil {
-			return errorCommon.NewInvariantError("failed to set session value")
-		}
-	}
-
-	seller, err := u.UserRepository.GetSellerByUserID(ctx, tx, user.UserID)
-
-	if err != nil {
-		return err
-	}
-
-	if seller.SellerID != "" {
-		err = u.SessionManager.SetSessionValue(ctx, "seller_id", seller.SellerID)
-
-		if err != nil {
-			return errorCommon.NewInvariantError("failed to set session value")
-		}
-	}
-
 	return nil
 }
 
@@ -207,7 +179,7 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSel
 	return nil
 }
 
-func (u *UserUsecaseImplementation) GetCustomerByID(ctx *gin.Context, customerID string) (httpCommon.Customer, error) {
+func (u *UserUsecaseImplementation) GetCustomerByUserID(ctx *gin.Context, UserID string) (httpCommon.Customer, error) {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -216,7 +188,7 @@ func (u *UserUsecaseImplementation) GetCustomerByID(ctx *gin.Context, customerID
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	customer, err := u.UserRepository.GetCustomerByID(ctx, tx, customerID)
+	customer, err := u.UserRepository.GetCustomerByUserID(ctx, tx, UserID)
 
 	if err != nil {
 		return httpCommon.Customer{}, err
@@ -241,7 +213,7 @@ func (u *UserUsecaseImplementation) GetCustomerByID(ctx *gin.Context, customerID
 
 }
 
-func (u *UserUsecaseImplementation) GetSellerByID(ctx *gin.Context, sellerID string) (httpCommon.Seller, error) {
+func (u *UserUsecaseImplementation) GetSellerByUserID(ctx *gin.Context, UserID string) (httpCommon.Seller, error) {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -250,7 +222,7 @@ func (u *UserUsecaseImplementation) GetSellerByID(ctx *gin.Context, sellerID str
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	seller, err := u.UserRepository.GetSellerByID(ctx, tx, sellerID)
+	seller, err := u.UserRepository.GetSellerByUserID(ctx, tx, UserID)
 
 	if err != nil {
 		return httpCommon.Seller{}, err

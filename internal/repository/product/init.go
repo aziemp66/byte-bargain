@@ -1,12 +1,12 @@
 package order
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	productDomain "github.com/aziemp66/byte-bargain/internal/domain/product"
-	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +17,7 @@ func NewProductRepositoryImplementation() *ProductRepositoryImplementation {
 	return &ProductRepositoryImplementation{}
 }
 
-func (p ProductRepositoryImplementation) GetAllProduct(ctx *gin.Context, tx *sql.Tx) ([]productDomain.Product, error) {
+func (p ProductRepositoryImplementation) GetAllProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.Product, error) {
 	var products []productDomain.Product
 
 	query := `SELECT product_id, seller_id, name, price, stock, category, description, weight FROM product`
@@ -45,7 +45,7 @@ func (p ProductRepositoryImplementation) GetAllProduct(ctx *gin.Context, tx *sql
 	return products, nil
 }
 
-func (p ProductRepositoryImplementation) GetSearchedProduct(ctx *gin.Context, tx *sql.Tx, search string) ([]productDomain.Product, error) {
+func (p ProductRepositoryImplementation) GetSearchedProduct(ctx context.Context, tx *sql.Tx, search string) ([]productDomain.Product, error) {
 	var products []productDomain.Product
 
 	query := `SELECT product_id, seller_id, name, price, stock, category, description, weight FROM product WHERE name LIKE ?`
@@ -73,7 +73,7 @@ func (p ProductRepositoryImplementation) GetSearchedProduct(ctx *gin.Context, tx
 	return products, nil
 }
 
-func (p ProductRepositoryImplementation) GetAllProductBySellerID(ctx *gin.Context, tx *sql.Tx, sellerID string) ([]productDomain.Product, error) {
+func (p ProductRepositoryImplementation) GetAllProductBySellerID(ctx context.Context, tx *sql.Tx, sellerID string) ([]productDomain.Product, error) {
 	var products []productDomain.Product
 
 	query := `SELECT product_id, seller_id, name, price, stock, category, description, weight FROM product WHERE seller_id = ?`
@@ -101,7 +101,7 @@ func (p ProductRepositoryImplementation) GetAllProductBySellerID(ctx *gin.Contex
 	return products, nil
 }
 
-func (p ProductRepositoryImplementation) GetProductByID(ctx *gin.Context, tx *sql.Tx, productID string) (productDomain.Product, error) {
+func (p ProductRepositoryImplementation) GetProductByID(ctx context.Context, tx *sql.Tx, productID string) (productDomain.Product, error) {
 	var product productDomain.Product
 
 	query := `SELECT product_id, seller_id, name, price, stock, category, description, weight FROM product WHERE product_id = ?`
@@ -109,13 +109,13 @@ func (p ProductRepositoryImplementation) GetProductByID(ctx *gin.Context, tx *sq
 	err := tx.QueryRowContext(ctx, query, productID).Scan(&product.ProductID, &product.SellerID, &product.Name, &product.Price, &product.Stock, &product.Category, &product.Description, &product.Weight)
 
 	if err != nil {
-		return product, errorCommon.NewInvariantError(err.Error())
+		return product, errorCommon.NewInvariantError("product not found")
 	}
 
 	return product, nil
 }
 
-func (p ProductRepositoryImplementation) GetOrderByID(ctx *gin.Context, tx *sql.Tx, orderID string) (productDomain.Order, error) {
+func (p ProductRepositoryImplementation) GetOrderByID(ctx context.Context, tx *sql.Tx, orderID string) (productDomain.Order, error) {
 	var order productDomain.Order
 
 	query := `SELECT order_id, customer_id, seller_id, order_date, status FROM orders WHERE order_id = ?`
@@ -123,13 +123,13 @@ func (p ProductRepositoryImplementation) GetOrderByID(ctx *gin.Context, tx *sql.
 	err := tx.QueryRowContext(ctx, query, orderID).Scan(&order.OrderID, &order.CustomerID, &order.SellerID, &order.OrderDate, &order.Status)
 
 	if err != nil {
-		return order, errorCommon.NewInvariantError(err.Error())
+		return order, errorCommon.NewInvariantError("order not found")
 	}
 
 	return order, nil
 }
 
-func (p ProductRepositoryImplementation) GetOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) (productDomain.OrderProduct, error) {
+func (p ProductRepositoryImplementation) GetOrderProductByID(ctx context.Context, tx *sql.Tx, orderProductID string) (productDomain.OrderProduct, error) {
 	var orderProduct productDomain.OrderProduct
 
 	query := `SELECT order_product_id, order_id, product_id, quantity FROM order_product WHERE order_product_id = ?`
@@ -137,13 +137,13 @@ func (p ProductRepositoryImplementation) GetOrderProductByID(ctx *gin.Context, t
 	err := tx.QueryRowContext(ctx, query, orderProductID).Scan(&orderProduct.OrderProductID, &orderProduct.OrderID, &orderProduct.ProductID, &orderProduct.Quantity)
 
 	if err != nil {
-		return orderProduct, errorCommon.NewInvariantError(err.Error())
+		return orderProduct, errorCommon.NewInvariantError("order product not found")
 	}
 
 	return orderProduct, nil
 }
 
-func (p ProductRepositoryImplementation) GetOrderByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.Order, error) {
+func (p ProductRepositoryImplementation) GetOrderByCustomerID(ctx context.Context, tx *sql.Tx, customerID string) ([]productDomain.Order, error) {
 	var orders []productDomain.Order
 
 	query := `SELECT order_id, customer_id, seller_id, order_date, status FROM orders WHERE customer_id = ?`
@@ -171,7 +171,7 @@ func (p ProductRepositoryImplementation) GetOrderByCustomerID(ctx *gin.Context, 
 	return orders, nil
 }
 
-func (p ProductRepositoryImplementation) GetOrderBySellerID(ctx *gin.Context, tx *sql.Tx, sellerID string) ([]productDomain.Order, error) {
+func (p ProductRepositoryImplementation) GetOrderBySellerID(ctx context.Context, tx *sql.Tx, sellerID string) ([]productDomain.Order, error) {
 	var orders []productDomain.Order
 
 	query := `SELECT order_id, customer_id, seller_id, order_date, status FROM orders WHERE seller_id = ?`
@@ -199,7 +199,21 @@ func (p ProductRepositoryImplementation) GetOrderBySellerID(ctx *gin.Context, tx
 	return orders, nil
 }
 
-func (p ProductRepositoryImplementation) GetCartProductByCustomerID(ctx *gin.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error) {
+func (p ProductRepositoryImplementation) GetCartProductByID(ctx context.Context, tx *sql.Tx, cartProductID string) (productDomain.CartProduct, error) {
+	var cartProduct productDomain.CartProduct
+
+	query := `SELECT cart_product_id, customer_id, product_id, quantity FROM cart_product WHERE cart_product_id = ?`
+
+	err := tx.QueryRowContext(ctx, query, cartProductID).Scan(&cartProduct.CartProductID, &cartProduct.CustomerID, &cartProduct.ProductID, &cartProduct.Quantity)
+
+	if err != nil {
+		return cartProduct, errorCommon.NewInvariantError("cart product not found")
+	}
+
+	return cartProduct, nil
+}
+
+func (p ProductRepositoryImplementation) GetCartProductByCustomerID(ctx context.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error) {
 	var cartProducts []productDomain.CartProduct
 
 	query := `SELECT cart_product_id, customer_id, product_id, quantity FROM cart_product WHERE customer_id = ?`
@@ -227,7 +241,7 @@ func (p ProductRepositoryImplementation) GetCartProductByCustomerID(ctx *gin.Con
 	return cartProducts, nil
 }
 
-func (p ProductRepositoryImplementation) GetPaymentByID(ctx *gin.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error) {
+func (p ProductRepositoryImplementation) GetPaymentByID(ctx context.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error) {
 	var payment productDomain.Payment
 
 	query := `SELECT payment_id, order_id, payment_date, payment_method FROM payment WHERE payment_id = ?`
@@ -235,14 +249,14 @@ func (p ProductRepositoryImplementation) GetPaymentByID(ctx *gin.Context, tx *sq
 	err := tx.QueryRowContext(ctx, query, paymentID).Scan(&payment.PaymentID, &payment.OrderID, &payment.PaymentDate, &payment.PaymentMethod)
 
 	if err != nil {
-		return payment, errorCommon.NewInvariantError(err.Error())
+		return payment, errorCommon.NewInvariantError("payment not found")
 	}
 
 	return payment, nil
 
 }
 
-func (p ProductRepositoryImplementation) GetOrderProductByOrderID(ctx *gin.Context, tx *sql.Tx, orderID string) ([]productDomain.OrderProduct, error) {
+func (p ProductRepositoryImplementation) GetOrderProductByOrderID(ctx context.Context, tx *sql.Tx, orderID string) ([]productDomain.OrderProduct, error) {
 	var orderProducts []productDomain.OrderProduct
 
 	query := `SELECT order_product_id, order_id, product_id, quantity FROM order_product WHERE order_id = ?`
@@ -270,7 +284,7 @@ func (p ProductRepositoryImplementation) GetOrderProductByOrderID(ctx *gin.Conte
 	return orderProducts, nil
 }
 
-func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx *gin.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error) {
+func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error) {
 	var orderProducts []productDomain.OrderProduct
 
 	query := `SELECT order_product_id, order_id, product_id, quantity FROM order_product`
@@ -298,7 +312,7 @@ func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx *gin.Context, tx
 	return orderProducts, nil
 }
 
-func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error {
+func (p ProductRepositoryImplementation) InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error {
 	query := `INSERT INTO product (product_id, seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	productID := uuid.New().String()
@@ -312,7 +326,7 @@ func (p ProductRepositoryImplementation) InsertProduct(ctx *gin.Context, tx *sql
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error {
+func (p ProductRepositoryImplementation) InsertOrder(ctx context.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error {
 	query := `INSERT INTO orders (order_id, customer_id, seller_id, order_date, status) VALUES (?, ?, ?, ?)`
 
 	orderID := uuid.New().String()
@@ -326,7 +340,7 @@ func (p ProductRepositoryImplementation) InsertOrder(ctx *gin.Context, tx *sql.T
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx *sql.Tx, orderID, productID string, quantity int) error {
+func (p ProductRepositoryImplementation) InsertOrderProduct(ctx context.Context, tx *sql.Tx, orderID, productID string, quantity int) error {
 	query := `INSERT INTO order_product (order_product_id, order_id, product_id, quantity) VALUES (?, ?, ?)`
 
 	orderProductID := uuid.New().String()
@@ -340,7 +354,7 @@ func (p ProductRepositoryImplementation) InsertOrderProduct(ctx *gin.Context, tx
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx *sql.Tx, cartID, productID string, quantity int) error {
+func (p ProductRepositoryImplementation) InsertCartProduct(ctx context.Context, tx *sql.Tx, cartID, productID string, quantity int) error {
 	query := `INSERT INTO cart_product (cart_product_id, cart_id, product_id, quantity) VALUES (?, ?, ?)`
 
 	cartProductID := uuid.New().String()
@@ -354,7 +368,7 @@ func (p ProductRepositoryImplementation) InsertCartProduct(ctx *gin.Context, tx 
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql.Tx, orderID string, paymentDate time.Time, totalPayment float64, paymentMethod string) error {
+func (p ProductRepositoryImplementation) InsertPayment(ctx context.Context, tx *sql.Tx, orderID string, paymentDate time.Time, totalPayment float64, paymentMethod string) error {
 	query := `INSERT INTO payment (payment_id, order_id, payment_date, total_payment, payment_method) VALUES (?, ?, ?, ?)`
 
 	paymentID := uuid.New().String()
@@ -368,7 +382,7 @@ func (p ProductRepositoryImplementation) InsertPayment(ctx *gin.Context, tx *sql
 	return nil
 }
 
-func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.Tx, image string) (imageID string, err error) {
+func (p ProductRepositoryImplementation) InsertImage(ctx context.Context, tx *sql.Tx, image string) (imageID string, err error) {
 	query := `INSERT INTO image (product_image_id, image) VALUES (?, ?)`
 
 	productImageID := uuid.New().String()
@@ -382,7 +396,7 @@ func (p ProductRepositoryImplementation) InsertImage(ctx *gin.Context, tx *sql.T
 	return productImageID, nil
 }
 
-func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error {
+func (p ProductRepositoryImplementation) UpdateProductByID(ctx context.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error {
 	query := `UPDATE product SET name = ?, price = ?, stock = ?, category = ?, description = ?, weight = ? WHERE product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, productName, price, stock, category, description, weight, productID)
@@ -394,7 +408,7 @@ func (p ProductRepositoryImplementation) UpdateProductByID(ctx *gin.Context, tx 
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx *gin.Context, tx *sql.Tx, orderID, status string) error {
+func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx context.Context, tx *sql.Tx, orderID, status string) error {
 	query := `UPDATE orders SET status = ? WHERE order_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, status, orderID)
@@ -406,7 +420,7 @@ func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx *gin.Context,
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx *gin.Context, tx *sql.Tx, orderProductID, quantity string) error {
+func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error {
 	query := `UPDATE order_product SET qty = ? WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, orderProductID)
@@ -418,7 +432,7 @@ func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx *gin.Cont
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx *gin.Context, tx *sql.Tx, cartProductID, quantity string) error {
+func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error {
 	query := `UPDATE cart_product SET qty = ? WHERE cart_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, cartProductID)
@@ -430,7 +444,7 @@ func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx *gin.Conte
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateLinkImageByID(ctx *gin.Context, tx *sql.Tx, imageID, productID string) error {
+func (p ProductRepositoryImplementation) UpdateLinkImageByID(ctx context.Context, tx *sql.Tx, imageID, productID string) error {
 	query := `UPDATE image SET product_id = ? WHERE product_image_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, productID, imageID)
@@ -442,7 +456,7 @@ func (p ProductRepositoryImplementation) UpdateLinkImageByID(ctx *gin.Context, t
 	return nil
 }
 
-func (p ProductRepositoryImplementation) DeleteProductByID(ctx *gin.Context, tx *sql.Tx, productID string) error {
+func (p ProductRepositoryImplementation) DeleteProductByID(ctx context.Context, tx *sql.Tx, productID string) error {
 	query := `DELETE FROM product WHERE product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, productID)
@@ -454,7 +468,7 @@ func (p ProductRepositoryImplementation) DeleteProductByID(ctx *gin.Context, tx 
 	return nil
 }
 
-func (p ProductRepositoryImplementation) DeleteOrderProductByID(ctx *gin.Context, tx *sql.Tx, orderProductID string) error {
+func (p ProductRepositoryImplementation) DeleteOrderProductByID(ctx context.Context, tx *sql.Tx, orderProductID string) error {
 	query := `DELETE FROM order_product WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, orderProductID)
@@ -466,7 +480,7 @@ func (p ProductRepositoryImplementation) DeleteOrderProductByID(ctx *gin.Context
 	return nil
 }
 
-func (p ProductRepositoryImplementation) DeleteCartProductByID(ctx *gin.Context, tx *sql.Tx, cartProductID string) error {
+func (p ProductRepositoryImplementation) DeleteCartProductByID(ctx context.Context, tx *sql.Tx, cartProductID string) error {
 	query := `DELETE FROM cart_product WHERE cart_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, cartProductID)

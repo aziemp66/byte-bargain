@@ -149,7 +149,7 @@ func TestProductController(t *testing.T) {
 	})
 
 	t.Run("Test Add Product To Cart", func(t *testing.T) {
-		requestBody := httpCommon.AddProduct{
+		requestBody := httpCommon.ProductRequest{
 			Name:        "Test Product",
 			Price:       100000.500,
 			Stock:       10,

@@ -337,6 +337,35 @@ func (p *ProductUsecaseImplementation) GetSellerOrderByID(ctx *gin.Context, sell
 	return orderItems, nil
 }
 
+func (p *ProductUsecaseImplementation) GetCartProductByID(ctx *gin.Context, cartProductID string) (httpCommon.CartProduct, error) {
+	tx, err := p.DB.Begin()
+
+	if err != nil {
+		return httpCommon.CartProduct{}, err
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	cartProduct, err := p.ProductRepository.GetCartProductByID(ctx, tx, cartProductID)
+
+	if err != nil {
+		return httpCommon.CartProduct{}, err
+	}
+
+	product, err := p.ProductRepository.GetProductByID(ctx, tx, cartProduct.ProductID)
+
+	if err != nil {
+		return httpCommon.CartProduct{}, err
+	}
+
+	return httpCommon.CartProduct{
+		CartProductID: cartProduct.CartProductID,
+		ProductID:     cartProduct.ProductID,
+		Price:         product.Price,
+		Qty:           cartProduct.Quantity,
+	}, nil
+}
+
 func (p *ProductUsecaseImplementation) GetOrderProductByID(ctx *gin.Context, orderProductID string) (httpCommon.OrderProduct, error) {
 	tx, err := p.DB.Begin()
 
@@ -425,7 +454,7 @@ func (p *ProductUsecaseImplementation) GetPaymentByID(ctx *gin.Context, paymentI
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product httpCommon.AddProduct) error {
+func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product httpCommon.ProductRequest) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -434,7 +463,7 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product h
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	sellerID := p.SessionManager.GetSessionValue(ctx, "seller_id")
+	sellerID := p.SessionManager.GetSessionValue(ctx, "user_id")
 
 	if sellerID == "" {
 		return errorCommon.NewForbiddenError("You are not a seller")
@@ -443,7 +472,7 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product h
 	sellerIDString, ok := sellerID.(string)
 
 	if !ok {
-		return errorCommon.NewInvariantError("seller_id is not string")
+		return errorCommon.NewInvariantError("user_id is not string")
 	}
 
 	err = p.ProductRepository.InsertProduct(ctx, tx, sellerIDString, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
@@ -464,7 +493,7 @@ func (p *ProductUsecaseImplementation) InsertOrder(ctx *gin.Context, createOrder
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	customerID := p.SessionManager.GetSessionValue(ctx, "customer_id")
+	customerID := p.SessionManager.GetSessionValue(ctx, "user_id")
 
 	if customerID == "" {
 		return errorCommon.NewForbiddenError("You are not a customer")
@@ -473,7 +502,7 @@ func (p *ProductUsecaseImplementation) InsertOrder(ctx *gin.Context, createOrder
 	customerIDString, ok := customerID.(string)
 
 	if !ok {
-		return errorCommon.NewInvariantError("customer_id is not string")
+		return errorCommon.NewInvariantError("user_id is not string")
 	}
 
 	err = p.ProductRepository.InsertOrder(ctx, tx, customerIDString, createOrder.SellerID, time.Now(), "pending")
@@ -503,7 +532,7 @@ func (p *ProductUsecaseImplementation) InsertOrderProduct(ctx *gin.Context, orde
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartProduct httpCommon.CartProduct) error {
+func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartProduct httpCommon.AddCartProduct) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -512,7 +541,7 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartP
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	customerID := p.SessionManager.GetSessionValue(ctx, "customer_id")
+	customerID := p.SessionManager.GetSessionValue(ctx, "user_id")
 
 	if customerID == "" {
 		return errorCommon.NewForbiddenError("You are not a customer")
@@ -521,7 +550,7 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartP
 	customerIDString, ok := customerID.(string)
 
 	if !ok {
-		return errorCommon.NewInvariantError("customer_id is not string")
+		return errorCommon.NewInvariantError("user_id is not string")
 	}
 
 	err = p.ProductRepository.InsertCartProduct(ctx, tx, customerIDString, cartProduct.ProductID, cartProduct.Qty)
@@ -589,7 +618,7 @@ func (p *ProductUsecaseImplementation) InsertImages(ctx *gin.Context) (imagesID 
 	return imagesID, nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.Product) error {
+func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.ProductRequest) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -597,6 +626,26 @@ func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, produ
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
+
+	productRes, err := p.ProductRepository.GetProductByID(ctx, tx, productID)
+
+	if err != nil {
+		return err
+	}
+
+	if productRes.ProductID == "" {
+		return errorCommon.NewNotFoundError("Product not found")
+	}
+
+	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("user_id is not string")
+	}
+
+	if productRes.SellerID != sellerID {
+		return errorCommon.NewForbiddenError("You are not the seller of this product")
+	}
 
 	err = p.ProductRepository.UpdateProductByID(ctx, tx, productID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
 
@@ -607,7 +656,7 @@ func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, produ
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, orderID, status string) error {
+func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, updateOrderStatus httpCommon.UpdateOrderStatus) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -616,7 +665,36 @@ func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, o
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	err = p.ProductRepository.UpdateOrderStatusByID(ctx, tx, orderID, status)
+	if updateOrderStatus.Status != httpCommon.ORDER_STATUS_CANCELED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_DELIVERED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_SHIPPED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_PROCESSING &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_PENDING &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_REJECTED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_REFUNDED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_FAILED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_COMPLETED &&
+		updateOrderStatus.Status != httpCommon.ORDER_STATUS_RETURNED {
+		return errorCommon.NewInvariantError("Invalid order status")
+	}
+
+	order, err := p.ProductRepository.GetOrderByID(ctx, tx, updateOrderStatus.OrderID)
+
+	if err != nil {
+		return err
+	}
+
+	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("user_id is not string")
+	}
+
+	if order.SellerID != sellerID {
+		return errorCommon.NewForbiddenError("You are not the seller of this order")
+	}
+
+	err = p.ProductRepository.UpdateOrderStatusByID(ctx, tx, updateOrderStatus.OrderID, updateOrderStatus.Status)
 
 	if err != nil {
 		return err
@@ -670,25 +748,23 @@ func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, produ
 
 	defer dbCommon.CommitOrRollback(tx)
 
+	productRes, err := p.ProductRepository.GetProductByID(ctx, tx, productID)
+
+	if err != nil {
+		return err
+	}
+
+	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("user_id is not string")
+	}
+
+	if productRes.SellerID != sellerID {
+		return errorCommon.NewForbiddenError("You are not the seller of this product")
+	}
+
 	err = p.ProductRepository.DeleteProductByID(ctx, tx, productID)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *ProductUsecaseImplementation) DeleteOrderProductByID(ctx *gin.Context, orderProductID string) error {
-	tx, err := p.DB.Begin()
-
-	if err != nil {
-		return err
-	}
-
-	defer dbCommon.CommitOrRollback(tx)
-
-	err = p.ProductRepository.DeleteOrderProductByID(ctx, tx, orderProductID)
 
 	if err != nil {
 		return err
@@ -705,6 +781,22 @@ func (p *ProductUsecaseImplementation) DeleteCartProductByID(ctx *gin.Context, c
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
+
+	cartProductRes, err := p.ProductRepository.GetCartProductByID(ctx, tx, cartProductID)
+
+	if err != nil {
+		return err
+	}
+
+	customerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		return errorCommon.NewInvariantError("user_id is not string")
+	}
+
+	if cartProductRes.CustomerID != customerID {
+		return errorCommon.NewForbiddenError("You are not the customer of this cart product")
+	}
 
 	err = p.ProductRepository.DeleteCartProductByID(ctx, tx, cartProductID)
 
