@@ -38,7 +38,7 @@ func main() {
 
 	api := httpServer.Router.Group("/api")
 
-	api.Use(httpCommon.MiddlewareErrorHandler())
+	api.Use(httpCommon.MiddlewareErrorHandler(cfg.WebURL))
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
 

@@ -7,7 +7,7 @@ import (
 
 type config struct {
 	Port                 int    `env:"PORT,unset" envDefault:"5000"`
-	BaseUrl              string `env:"BASE_URL,unset"`
+	WebURL               string `env:"WEB_URL,unset"`
 	DatabaseURL          string `env:"DATABASE_URL,unset"`
 	AccessTokenKey       string `env:"ACCESS_TOKEN_KEY,unset"`
 	GinMode              string `env:"GIN_MODE,unset" envDefault:"debug"`

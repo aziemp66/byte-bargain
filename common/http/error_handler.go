@@ -6,9 +6,10 @@ import (
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 )
 
-func MiddlewareErrorHandler() gin.HandlerFunc {
+func MiddlewareErrorHandler(webURL string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Add("Content-Type", "application/json")
+		c.Set("web_url", webURL)
 		c.Next()
 
 		if len(c.Errors) > 0 {
