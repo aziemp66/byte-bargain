@@ -21,6 +21,8 @@ import (
 	productController "github.com/aziemp66/byte-bargain/internal/controller/product"
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
 	productUseCase "github.com/aziemp66/byte-bargain/internal/usecase/product"
+
+	webController "github.com/aziemp66/byte-bargain/internal/controller/web"
 )
 
 func main() {
@@ -62,6 +64,8 @@ func main() {
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
 	ProductUseCase := productUseCase.NewProductUsecaseImplementation(ProductRepository, db, sessionManager)
 	productController.NewProductController(api.Group("/product"), ProductUseCase)
+
+	webController.NewWebController(httpServer.Router.Group(""), UserUseCase, ProductUseCase, sessionManager)
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
 

@@ -3,6 +3,8 @@ package web
 import (
 	"github.com/gin-gonic/gin"
 
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
+
 	productUC "github.com/aziemp66/byte-bargain/internal/usecase/product"
 	userUC "github.com/aziemp66/byte-bargain/internal/usecase/user"
 )
@@ -10,12 +12,14 @@ import (
 type WebController struct {
 	UserUsecase    userUC.Usecase
 	ProductUsecase productUC.Usecase
+	SessionManager *sessionCommon.SessionManager
 }
 
-func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsecase productUC.Usecase) {
+func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsecase productUC.Usecase, sessionManager *sessionCommon.SessionManager) {
 	webController := &WebController{
 		UserUsecase:    userUsecase,
 		ProductUsecase: productUsecase,
+		SessionManager: sessionManager,
 	}
 
 	//auth routes
