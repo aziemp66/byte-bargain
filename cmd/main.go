@@ -35,8 +35,8 @@ func main() {
 		Master:       "layouts/master",
 		DisableCache: false,
 		Delims: goview.Delims{
-			Left:  `{{`,
-			Right: `}}`,
+			Left:  "{{",
+			Right: "}}",
 		},
 	}
 

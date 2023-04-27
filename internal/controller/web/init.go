@@ -1,6 +1,8 @@
 package web
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
@@ -28,7 +30,7 @@ func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, produ
 	router.GET("/forgot-password", webController.ForgotPassword)
 	router.GET("/reset-password/:id/:token", webController.ResetPassword)
 
-	router.GET("/", webController.Home)
+	router.GET("/", webController.Index)
 	router.GET("/product/:id", webController.ProductDetail)
 	router.GET("/cart", webController.Cart)
 	router.GET("/checkout", webController.Checkout)
@@ -40,11 +42,11 @@ func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, produ
 }
 
 func (w *WebController) Login(ctx *gin.Context) {
-
+	ctx.HTML(http.StatusOK, "login", gin.H{})
 }
 
 func (w *WebController) Register(ctx *gin.Context) {
-
+	ctx.HTML(http.StatusOK, "register", gin.H{})
 }
 
 func (w *WebController) ForgotPassword(ctx *gin.Context) {
@@ -55,8 +57,8 @@ func (w *WebController) ResetPassword(ctx *gin.Context) {
 
 }
 
-func (w *WebController) Home(ctx *gin.Context) {
-
+func (w *WebController) Index(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "index", gin.H{})
 }
 
 func (w *WebController) ProductDetail(ctx *gin.Context) {
