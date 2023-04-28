@@ -54,11 +54,11 @@ func (w *WebController) Register(ctx *gin.Context) {
 }
 
 func (w *WebController) ForgotPassword(ctx *gin.Context) {
-
+	ctx.HTML(http.StatusOK, "forgot-password", gin.H{})
 }
 
 func (w *WebController) ResetPassword(ctx *gin.Context) {
-
+	ctx.HTML(http.StatusOK, "reset-password", gin.H{})
 }
 
 func (w *WebController) CustomerProfile(ctx *gin.Context) {
