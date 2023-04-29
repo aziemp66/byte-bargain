@@ -61,6 +61,40 @@ func (w *WebController) ResetPassword(ctx *gin.Context) {
 
 }
 
+func (w *WebController) CustomerProfile(ctx *gin.Context) {
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.Param("id"))
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "customer-profile", gin.H{
+		"customer": customer,
+	})
+}
+
+func (w *WebController) SellerProfile(ctx *gin.Context) {
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.Param("id"))
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "seller-profile", gin.H{
+		"seller": seller,
+	})
+}
+
 func (w *WebController) Index(ctx *gin.Context) {
 	products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
 
@@ -235,12 +269,4 @@ func (w *WebController) CustomerSelfProfile(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "customer-self-profile", gin.H{
 		"customer": customer,
 	})
-}
-
-func (w *WebController) CustomerProfile(ctx *gin.Context) {
-
-}
-
-func (w *WebController) SellerProfile(ctx *gin.Context) {
-
 }
