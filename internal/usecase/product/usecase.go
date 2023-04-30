@@ -12,7 +12,7 @@ type Usecase interface {
 	GetProductByID(ctx *gin.Context, productID string) (httpCommon.Product, error)
 	GetOrderByID(ctx *gin.Context, orderID string) (httpCommon.Order, error)
 	GetOrderByCustomerID(ctx *gin.Context, customerID string) ([]httpCommon.OrderItems, error)
-	GetSellerOrderByID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error)
+	GetOrderBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error)
 	GetOrderProductByID(ctx *gin.Context, orderProductID string) (httpCommon.OrderProduct, error)
 	GetCustomerCart(ctx *gin.Context, customerID string) (httpCommon.Cart, error)
 	GetCartProductByID(ctx *gin.Context, cartProductID string) (httpCommon.CartProduct, error)

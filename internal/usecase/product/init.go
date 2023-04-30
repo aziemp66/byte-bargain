@@ -281,7 +281,7 @@ func (p *ProductUsecaseImplementation) GetOrderByCustomerID(ctx *gin.Context, cu
 	return orderItems, nil
 }
 
-func (p *ProductUsecaseImplementation) GetSellerOrderByID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error) {
+func (p *ProductUsecaseImplementation) GetOrderBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {

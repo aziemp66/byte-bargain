@@ -43,6 +43,15 @@ func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, produ
 	customerRouter.GET("/order", webController.CustomerOrder)
 	customerRouter.GET("/order/:id", webController.CustomerOrderDetail)
 	customerRouter.GET("/profile", webController.CustomerSelfProfile)
+
+	//seller routes
+	sellerRouter := router.Group("/seller")
+	sellerRouter.GET("/product", webController.SellerProduct)
+	sellerRouter.GET("/product/add", webController.SellerProductAdd)
+	sellerRouter.GET("/product/:id", webController.SellerProductDetail)
+	sellerRouter.GET("/order", webController.SellerOrder)
+	sellerRouter.GET("/order/:id", webController.SellerOrderDetail)
+	sellerRouter.GET("/profile", webController.SellerSelfProfile)
 }
 
 func (w *WebController) Login(ctx *gin.Context) {
@@ -268,5 +277,204 @@ func (w *WebController) CustomerSelfProfile(ctx *gin.Context) {
 
 	ctx.HTML(http.StatusOK, "customer-self-profile", gin.H{
 		"customer": customer,
+	})
+}
+
+func (w *WebController) SellerProduct(ctx *gin.Context) {
+	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": "user_id not found",
+		})
+		return
+	}
+
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	products, err := w.ProductUsecase.GetProductBySellerID(ctx, seller.SellerID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "seller-product", gin.H{
+		"products": products,
+	})
+}
+
+func (w *WebController) SellerProductAdd(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "seller-product-add", gin.H{})
+}
+
+func (w *WebController) SellerProductDetail(ctx *gin.Context) {
+	productID := ctx.Param("id")
+
+	product, err := w.ProductUsecase.GetProductByID(ctx, productID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": "user_id not found",
+		})
+		return
+	}
+
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	if product.SellerID != seller.SellerID {
+		ctx.HTML(http.StatusUnauthorized, "error", gin.H{
+			"code":  "401",
+			"error": "unauthorized",
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "seller-product-detail", gin.H{
+		"product": product,
+	})
+}
+
+func (w *WebController) SellerOrder(ctx *gin.Context) {
+	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": "user_id not found",
+		})
+		return
+	}
+
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	orders, err := w.ProductUsecase.GetOrderBySellerID(ctx, seller.SellerID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+	}
+
+	ctx.HTML(http.StatusOK, "seller-order", gin.H{
+		"orders": orders,
+	})
+}
+
+func (w *WebController) SellerOrderDetail(ctx *gin.Context) {
+	orderID := ctx.Param("id")
+
+	order, err := w.ProductUsecase.GetOrderByID(ctx, orderID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": "user_id not found",
+		})
+		return
+	}
+
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+	}
+
+	if order.SellerID != seller.SellerID {
+		ctx.HTML(http.StatusUnauthorized, "error", gin.H{
+			"code":  "401",
+			"error": "unauthorized",
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "seller-order-detail", gin.H{
+		"order": order,
+	})
+}
+
+func (w *WebController) SellerSelfProfile(ctx *gin.Context) {
+	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
+
+	if !ok {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": "user_id not found",
+		})
+		return
+	}
+
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "seller-self-profile", gin.H{
+		"seller": seller,
 	})
 }
