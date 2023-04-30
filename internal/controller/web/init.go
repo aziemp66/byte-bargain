@@ -26,7 +26,8 @@ func NewWebController(router *gin.RouterGroup, userUsecase userUC.Usecase, produ
 
 	//auth routes
 	router.GET("/login", webController.Login)
-	router.GET("/register", webController.Register)
+	router.GET("/register/customer", webController.RegisterCustomer)
+	router.GET("/register/seller", webController.RegisterSeller)
 	router.GET("/forgot-password", webController.ForgotPassword)
 	router.GET("/reset-password/:id/:token", webController.ResetPassword)
 
@@ -58,8 +59,12 @@ func (w *WebController) Login(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "login", gin.H{})
 }
 
-func (w *WebController) Register(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "register", gin.H{})
+func (w *WebController) RegisterCustomer(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "customer/register", gin.H{})
+}
+
+func (w *WebController) RegisterSeller(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "seller/register", gin.H{})
 }
 
 func (w *WebController) ForgotPassword(ctx *gin.Context) {
@@ -275,7 +280,7 @@ func (w *WebController) CustomerSelfProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.HTML(http.StatusOK, "customer-self-profile", gin.H{
+	ctx.HTML(http.StatusOK, "profile", gin.H{
 		"customer": customer,
 	})
 }
