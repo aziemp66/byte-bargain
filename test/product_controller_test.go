@@ -12,10 +12,15 @@ import (
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	jwtCommon "github.com/aziemp66/byte-bargain/common/jwt"
+	mailCommon "github.com/aziemp66/byte-bargain/common/mail"
+	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 	productController "github.com/aziemp66/byte-bargain/internal/controller/product"
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
+	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 	productUsecase "github.com/aziemp66/byte-bargain/internal/usecase/product"
+	userUsecase "github.com/aziemp66/byte-bargain/internal/usecase/user"
 )
 
 func getDummyProductController() *gin.Engine {
@@ -27,9 +32,17 @@ func getDummyProductController() *gin.Engine {
 
 	testDb := dbCommon.NewDB("root:azie122333@tcp(localhost:3306)/test_byte_bargain?charset=utf8mb4&parseTime=True&loc=Local")
 	testSession := sessionCommon.NewSessionManager([]byte("secret"))
+	passwordManager := passwordCommon.NewPasswordHashManager()
+	jwtManager := jwtCommon.NewJWTManager("secret")
+	mailDialer := mailCommon.New("azielala55@gmail.com", "azie122333", "smtp.gmail.com", 587)
+
+	UserRepository := userRepository.NewUserRepositoryImplementation()
+	UserUsecase := userUsecase.NewUserUsecaseImplementation(UserRepository, testDb, passwordManager, jwtManager, mailDialer, "localhost:3000")
+
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
-	ProductUsecase := productUsecase.NewProductUsecaseImplementation(ProductRepository, testDb, testSession)
-	productController.NewProductController(productGroup, ProductUsecase)
+	ProductUsecase := productUsecase.NewProductUsecaseImplementation(ProductRepository, testDb)
+
+	productController.NewProductController(productGroup, ProductUsecase, UserUsecase, testSession)
 
 	return router
 }

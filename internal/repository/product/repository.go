@@ -26,7 +26,7 @@ type Repository interface {
 	InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error
 	InsertOrder(ctx context.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error
 	InsertOrderProduct(ctx context.Context, tx *sql.Tx, orderID, productID string, quantity int) error
-	InsertCartProduct(ctx context.Context, tx *sql.Tx, cartID, productID string, quantity int) error
+	InsertCartProduct(ctx context.Context, tx *sql.Tx, customerID, productID string, quantity int) error
 	InsertPayment(ctx context.Context, tx *sql.Tx, orderID string, paymentDate time.Time, totalPayment float64, paymentMethod string) error
 	InsertImage(ctx context.Context, tx *sql.Tx, image string) (imageID string, err error)
 	UpdateProductByID(ctx context.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error

@@ -1,17 +1,13 @@
 package product
 
 import (
+	"context"
 	"database/sql"
-	"fmt"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
-	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
 )
@@ -19,18 +15,16 @@ import (
 type ProductUsecaseImplementation struct {
 	ProductRepository productRepository.Repository
 	DB                *sql.DB
-	SessionManager    *sessionCommon.SessionManager
 }
 
-func NewProductUsecaseImplementation(productRepository productRepository.Repository, db *sql.DB, sessionManager *sessionCommon.SessionManager) *ProductUsecaseImplementation {
+func NewProductUsecaseImplementation(productRepository productRepository.Repository, db *sql.DB) *ProductUsecaseImplementation {
 	return &ProductUsecaseImplementation{
 		ProductRepository: productRepository,
 		DB:                db,
-		SessionManager:    sessionManager,
 	}
 }
 
-func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx *gin.Context) ([]httpCommon.Product, error) {
+func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx context.Context) ([]httpCommon.Product, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -108,7 +102,7 @@ func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx *gin.Context) (
 	return recommenddedProducts, nil
 }
 
-func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx *gin.Context, search string) ([]httpCommon.Product, error) {
+func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx context.Context, search string) ([]httpCommon.Product, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -141,7 +135,7 @@ func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx *gin.Context, sear
 	return searchedProducts, nil
 }
 
-func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.Product, error) {
+func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx context.Context, sellerID string) ([]httpCommon.Product, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -174,7 +168,7 @@ func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx *gin.Context, se
 	return sellerProducts, nil
 }
 
-func (p *ProductUsecaseImplementation) GetProductByID(ctx *gin.Context, productID string) (httpCommon.Product, error) {
+func (p *ProductUsecaseImplementation) GetProductByID(ctx context.Context, productID string) (httpCommon.Product, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -201,7 +195,7 @@ func (p *ProductUsecaseImplementation) GetProductByID(ctx *gin.Context, productI
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) GetOrderByID(ctx *gin.Context, orderID string) (httpCommon.Order, error) {
+func (p *ProductUsecaseImplementation) GetOrderByID(ctx context.Context, orderID string) (httpCommon.Order, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -225,7 +219,7 @@ func (p *ProductUsecaseImplementation) GetOrderByID(ctx *gin.Context, orderID st
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) GetOrderByCustomerID(ctx *gin.Context, customerID string) ([]httpCommon.OrderItems, error) {
+func (p *ProductUsecaseImplementation) GetOrderByCustomerID(ctx context.Context, customerID string) ([]httpCommon.OrderItems, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -281,7 +275,7 @@ func (p *ProductUsecaseImplementation) GetOrderByCustomerID(ctx *gin.Context, cu
 	return orderItems, nil
 }
 
-func (p *ProductUsecaseImplementation) GetOrderBySellerID(ctx *gin.Context, sellerID string) ([]httpCommon.OrderItems, error) {
+func (p *ProductUsecaseImplementation) GetOrderBySellerID(ctx context.Context, sellerID string) ([]httpCommon.OrderItems, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -337,7 +331,7 @@ func (p *ProductUsecaseImplementation) GetOrderBySellerID(ctx *gin.Context, sell
 	return orderItems, nil
 }
 
-func (p *ProductUsecaseImplementation) GetCartProductByID(ctx *gin.Context, cartProductID string) (httpCommon.CartProduct, error) {
+func (p *ProductUsecaseImplementation) GetCartProductByID(ctx context.Context, cartProductID string) (httpCommon.CartProduct, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -361,12 +355,13 @@ func (p *ProductUsecaseImplementation) GetCartProductByID(ctx *gin.Context, cart
 	return httpCommon.CartProduct{
 		CartProductID: cartProduct.CartProductID,
 		ProductID:     cartProduct.ProductID,
+		CustomerID:    cartProduct.CustomerID,
 		Price:         product.Price,
 		Qty:           cartProduct.Quantity,
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) GetOrderProductByID(ctx *gin.Context, orderProductID string) (httpCommon.OrderProduct, error) {
+func (p *ProductUsecaseImplementation) GetOrderProductByID(ctx context.Context, orderProductID string) (httpCommon.OrderProduct, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -389,7 +384,7 @@ func (p *ProductUsecaseImplementation) GetOrderProductByID(ctx *gin.Context, ord
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) GetCustomerCart(ctx *gin.Context, customerID string) (httpCommon.Cart, error) {
+func (p *ProductUsecaseImplementation) GetCustomerCart(ctx context.Context, customerID string) (httpCommon.Cart, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -430,7 +425,7 @@ func (p *ProductUsecaseImplementation) GetCustomerCart(ctx *gin.Context, custome
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) GetPaymentByID(ctx *gin.Context, paymentID string) (httpCommon.Payment, error) {
+func (p *ProductUsecaseImplementation) GetPaymentByID(ctx context.Context, paymentID string) (httpCommon.Payment, error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -454,7 +449,7 @@ func (p *ProductUsecaseImplementation) GetPaymentByID(ctx *gin.Context, paymentI
 	}, nil
 }
 
-func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product httpCommon.ProductRequest) error {
+func (p *ProductUsecaseImplementation) InsertProduct(ctx context.Context, sellerID string, product httpCommon.ProductRequest) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -463,19 +458,7 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product h
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	sellerID := p.SessionManager.GetSessionValue(ctx, "user_id")
-
-	if sellerID == "" {
-		return errorCommon.NewForbiddenError("You are not a seller")
-	}
-
-	sellerIDString, ok := sellerID.(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	err = p.ProductRepository.InsertProduct(ctx, tx, sellerIDString, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+	err = p.ProductRepository.InsertProduct(ctx, tx, sellerID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
 
 	if err != nil {
 		return err
@@ -484,7 +467,7 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx *gin.Context, product h
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertOrder(ctx *gin.Context, createOrder httpCommon.CreateOrder) error {
+func (p *ProductUsecaseImplementation) InsertOrder(ctx context.Context, customerID string, createOrder httpCommon.CreateOrder) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -493,19 +476,7 @@ func (p *ProductUsecaseImplementation) InsertOrder(ctx *gin.Context, createOrder
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	customerID := p.SessionManager.GetSessionValue(ctx, "user_id")
-
-	if customerID == "" {
-		return errorCommon.NewForbiddenError("You are not a customer")
-	}
-
-	customerIDString, ok := customerID.(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	err = p.ProductRepository.InsertOrder(ctx, tx, customerIDString, createOrder.SellerID, time.Now(), "pending")
+	err = p.ProductRepository.InsertOrder(ctx, tx, customerID, createOrder.SellerID, time.Now(), "pending")
 
 	if err != nil {
 		return err
@@ -514,7 +485,7 @@ func (p *ProductUsecaseImplementation) InsertOrder(ctx *gin.Context, createOrder
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertOrderProduct(ctx *gin.Context, orderProduct httpCommon.OrderProduct) error {
+func (p *ProductUsecaseImplementation) InsertOrderProduct(ctx context.Context, orderProduct httpCommon.OrderProduct) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -532,7 +503,7 @@ func (p *ProductUsecaseImplementation) InsertOrderProduct(ctx *gin.Context, orde
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartProduct httpCommon.AddCartProduct) error {
+func (p *ProductUsecaseImplementation) InsertCartProduct(ctx context.Context, customerID string, cartProduct httpCommon.AddCartProduct) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -541,19 +512,7 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartP
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	customerID := p.SessionManager.GetSessionValue(ctx, "user_id")
-
-	if customerID == "" {
-		return errorCommon.NewForbiddenError("You are not a customer")
-	}
-
-	customerIDString, ok := customerID.(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	err = p.ProductRepository.InsertCartProduct(ctx, tx, customerIDString, cartProduct.ProductID, cartProduct.Qty)
+	err = p.ProductRepository.InsertCartProduct(ctx, tx, customerID, cartProduct.ProductID, cartProduct.Qty)
 
 	if err != nil {
 		return err
@@ -562,7 +521,7 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx *gin.Context, cartP
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertPayment(ctx *gin.Context, payment httpCommon.Payment) error {
+func (p *ProductUsecaseImplementation) InsertPayment(ctx context.Context, payment httpCommon.Payment) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -580,45 +539,21 @@ func (p *ProductUsecaseImplementation) InsertPayment(ctx *gin.Context, payment h
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) InsertImages(ctx *gin.Context) (imagesID []string, err error) {
+func (p *ProductUsecaseImplementation) InsertImage(ctx context.Context, filePath string) (imagesID string, err error) {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	form, err := ctx.MultipartForm()
-
-	if err != nil {
-		return nil, errorCommon.NewInvariantError("Error reading multipart form")
-	}
-
-	files := form.File["images"]
-
-	for _, file := range files {
-		fileName := fmt.Sprintf("%s_%s", uuid.New().String(), file.Filename)
-
-		filePath := "public/product_images/" + fileName
-
-		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-			return nil, errorCommon.NewInvariantError("Error saving file")
-		}
-
-		imageID, err := p.ProductRepository.InsertImage(ctx, tx, filePath)
-
-		if err != nil {
-			return nil, err
-		}
-
-		imagesID = append(imagesID, imageID)
-	}
+	imagesID, err = p.ProductRepository.InsertImage(ctx, tx, filePath)
 
 	return imagesID, nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, productID string, product httpCommon.ProductRequest) error {
+func (p *ProductUsecaseImplementation) UpdateProductByID(ctx context.Context, productID string, product httpCommon.ProductRequest) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -637,16 +572,6 @@ func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, produ
 		return errorCommon.NewNotFoundError("Product not found")
 	}
 
-	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	if productRes.SellerID != sellerID {
-		return errorCommon.NewForbiddenError("You are not the seller of this product")
-	}
-
 	err = p.ProductRepository.UpdateProductByID(ctx, tx, productID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
 
 	if err != nil {
@@ -656,7 +581,7 @@ func (p *ProductUsecaseImplementation) UpdateProductByID(ctx *gin.Context, produ
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, updateOrderStatus httpCommon.UpdateOrderStatus) error {
+func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx context.Context, updateOrderStatus httpCommon.UpdateOrderStatus) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -678,22 +603,6 @@ func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, u
 		return errorCommon.NewInvariantError("Invalid order status")
 	}
 
-	order, err := p.ProductRepository.GetOrderByID(ctx, tx, updateOrderStatus.OrderID)
-
-	if err != nil {
-		return err
-	}
-
-	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	if order.SellerID != sellerID {
-		return errorCommon.NewForbiddenError("You are not the seller of this order")
-	}
-
 	err = p.ProductRepository.UpdateOrderStatusByID(ctx, tx, updateOrderStatus.OrderID, updateOrderStatus.Status)
 
 	if err != nil {
@@ -703,7 +612,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx *gin.Context, u
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx *gin.Context, orderProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Context, orderProductID, quantity string) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -721,7 +630,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx *gin.Contex
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx *gin.Context, cartProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx context.Context, cartProductID, quantity string) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -739,7 +648,7 @@ func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx *gin.Context
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, productID string) error {
+func (p *ProductUsecaseImplementation) DeleteProductByID(ctx context.Context, productID string) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -747,22 +656,6 @@ func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, produ
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
-
-	productRes, err := p.ProductRepository.GetProductByID(ctx, tx, productID)
-
-	if err != nil {
-		return err
-	}
-
-	sellerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	if productRes.SellerID != sellerID {
-		return errorCommon.NewForbiddenError("You are not the seller of this product")
-	}
 
 	err = p.ProductRepository.DeleteProductByID(ctx, tx, productID)
 
@@ -773,7 +666,7 @@ func (p *ProductUsecaseImplementation) DeleteProductByID(ctx *gin.Context, produ
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) DeleteCartProductByID(ctx *gin.Context, cartProductID string) error {
+func (p *ProductUsecaseImplementation) DeleteCartProductByID(ctx context.Context, cartProductID string) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -781,22 +674,6 @@ func (p *ProductUsecaseImplementation) DeleteCartProductByID(ctx *gin.Context, c
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
-
-	cartProductRes, err := p.ProductRepository.GetCartProductByID(ctx, tx, cartProductID)
-
-	if err != nil {
-		return err
-	}
-
-	customerID, ok := p.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("user_id is not string")
-	}
-
-	if cartProductRes.CustomerID != customerID {
-		return errorCommon.NewForbiddenError("You are not the customer of this cart product")
-	}
 
 	err = p.ProductRepository.DeleteCartProductByID(ctx, tx, cartProductID)
 

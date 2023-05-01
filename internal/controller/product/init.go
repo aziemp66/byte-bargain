@@ -5,18 +5,27 @@ import (
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	httpMiddleware "github.com/aziemp66/byte-bargain/common/http/middleware"
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	productUseCase "github.com/aziemp66/byte-bargain/internal/usecase/product"
+	userUsecase "github.com/aziemp66/byte-bargain/internal/usecase/user"
 )
 
 type ProductController struct {
 	ProductUsecase productUseCase.Usecase
+	UserUsecase    userUsecase.Usecase
+	SessionManager *sessionCommon.SessionManager
 }
 
-func NewProductController(router *gin.RouterGroup, productUsecase productUseCase.Usecase) {
+func NewProductController(router *gin.RouterGroup, productUsecase productUseCase.Usecase, userUsecase userUsecase.Usecase, sessionManager *sessionCommon.SessionManager) {
 	productController := ProductController{
 		ProductUsecase: productUsecase,
+		UserUsecase:    userUsecase,
+		SessionManager: sessionManager,
 	}
+
+	router.Use(httpMiddleware.SessionAuthMiddleware(productController.SessionManager))
 
 	router.POST("/product", productController.AddProduct)
 	router.POST("/cart", productController.AddProductToCart)
@@ -36,7 +45,14 @@ func (p *ProductController) CreateOrder(ctx *gin.Context) {
 		return
 	}
 
-	err := p.ProductUsecase.InsertOrder(ctx, req)
+	customer, err := p.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = p.ProductUsecase.InsertOrder(ctx, customer.CustomerID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -57,7 +73,14 @@ func (p *ProductController) AddProduct(ctx *gin.Context) {
 		return
 	}
 
-	err := p.ProductUsecase.InsertProduct(ctx, req)
+	seller, err := p.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = p.ProductUsecase.InsertProduct(ctx, seller.SellerID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -77,7 +100,14 @@ func (p *ProductController) AddProductToCart(ctx *gin.Context) {
 		return
 	}
 
-	err := p.ProductUsecase.InsertCartProduct(ctx, req)
+	customer, err := p.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = p.ProductUsecase.InsertCartProduct(ctx, customer.CustomerID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -100,19 +130,62 @@ func (p *ProductController) UpdateProduct(ctx *gin.Context) {
 
 	productID := ctx.Param("productID")
 
-	err := p.ProductUsecase.UpdateProductByID(ctx, productID, req)
+	seller, err := p.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
+
+	product, err := p.ProductUsecase.GetProductByID(ctx, productID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	if product.SellerID != seller.SellerID {
+		ctx.Error(errorCommon.NewForbiddenError("You are not allowed to update this product"))
+		return
+	}
+
+	err = p.ProductUsecase.UpdateProductByID(ctx, productID, req)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(200, httpCommon.Response{
+		Code:    200,
+		Message: "Product updated",
+	})
 }
 
 func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
-	productID := ctx.Param("productID")
+	cartProductID := ctx.Param("productID")
 	qty := ctx.Param("qty")
 
-	err := p.ProductUsecase.UpdateCartProductQtyByID(ctx, productID, qty)
+	cartProduct, err := p.ProductUsecase.GetCartProductByID(ctx, cartProductID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	customer, err := p.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	if cartProduct.CustomerID != customer.CustomerID {
+		ctx.Error(errorCommon.NewForbiddenError("You are not allowed to update this product"))
+		return
+	}
+
+	err = p.ProductUsecase.UpdateCartProductQtyByID(ctx, cartProductID, qty)
 
 	if err != nil {
 		ctx.Error(err)
@@ -133,7 +206,26 @@ func (p *ProductController) UpdateOrderStatus(ctx *gin.Context) {
 		return
 	}
 
-	err := p.ProductUsecase.UpdateOrderStatusByID(ctx, req)
+	order, err := p.ProductUsecase.GetOrderByID(ctx, req.OrderID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	seller, err := p.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	if order.SellerID != seller.SellerID {
+		ctx.Error(errorCommon.NewForbiddenError("You are not allowed to update this order"))
+		return
+	}
+
+	err = p.ProductUsecase.UpdateOrderStatusByID(ctx, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -149,7 +241,26 @@ func (p *ProductController) UpdateOrderStatus(ctx *gin.Context) {
 func (p *ProductController) DeleteProductInCart(ctx *gin.Context) {
 	productID := ctx.Param("productID")
 
-	err := p.ProductUsecase.DeleteCartProductByID(ctx, productID)
+	cartProduct, err := p.ProductUsecase.GetCartProductByID(ctx, productID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	customer, err := p.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	if cartProduct.CustomerID != customer.CustomerID {
+		ctx.Error(errorCommon.NewForbiddenError("You are not allowed to delete this product"))
+		return
+	}
+
+	err = p.ProductUsecase.DeleteCartProductByID(ctx, productID)
 
 	if err != nil {
 		ctx.Error(err)
@@ -165,7 +276,26 @@ func (p *ProductController) DeleteProductInCart(ctx *gin.Context) {
 func (p *ProductController) DeleteProduct(ctx *gin.Context) {
 	productID := ctx.Param("productID")
 
-	err := p.ProductUsecase.DeleteProductByID(ctx, productID)
+	seller, err := p.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	product, err := p.ProductUsecase.GetProductByID(ctx, productID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	if product.SellerID != seller.SellerID {
+		ctx.Error(errorCommon.NewForbiddenError("You are not allowed to delete this product"))
+		return
+	}
+
+	err = p.ProductUsecase.DeleteProductByID(ctx, productID)
 
 	if err != nil {
 		ctx.Error(err)

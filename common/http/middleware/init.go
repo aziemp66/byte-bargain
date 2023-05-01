@@ -1,8 +1,9 @@
 package midleware
 
 import (
-	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 	"github.com/gin-gonic/gin"
+
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 )
 
 func SessionAuthMiddleware(sessionManager *sessionCommon.SessionManager) gin.HandlerFunc {

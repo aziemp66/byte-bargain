@@ -167,6 +167,7 @@ type (
 	CartProduct struct {
 		CartProductID string  `json:"cart_product_id"`
 		ProductID     string  `json:"product_id"`
+		CustomerID    string  `json:"customer_id"`
 		Price         float64 `json:"price"`
 		Qty           int     `json:"qty"`
 	}

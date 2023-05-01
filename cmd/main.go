@@ -62,10 +62,10 @@ func main() {
 	userController.NewUserController(api.Group("/user"), UserUseCase, sessionManager)
 
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
-	ProductUseCase := productUseCase.NewProductUsecaseImplementation(ProductRepository, db, sessionManager)
-	productController.NewProductController(api.Group("/product"), ProductUseCase)
+	ProductUseCase := productUseCase.NewProductUsecaseImplementation(ProductRepository, db)
+	productController.NewProductController(api.Group("/product"), ProductUseCase, UserUseCase, sessionManager)
 
-	webController.NewWebController(httpServer.Router.Group(""), UserUseCase, ProductUseCase, sessionManager)
+	webController.NewWebController(httpServer.Router.Group("/"), UserUseCase, ProductUseCase, sessionManager)
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
 

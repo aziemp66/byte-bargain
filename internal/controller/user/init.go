@@ -150,9 +150,7 @@ func (u *UserController) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("user_id")
-
-	err := u.UserUsecase.ChangePassword(ctx, userID, req)
+	err := u.UserUsecase.ChangePassword(ctx, ctx.GetString("user_id"), req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -173,9 +171,7 @@ func (u *UserController) UpdateCustomer(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("user_id")
-
-	customer, err := u.UserUsecase.GetCustomerByUserID(ctx, userID)
+	customer, err := u.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.Error(err)
