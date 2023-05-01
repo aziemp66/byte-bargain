@@ -1,0 +1,11 @@
+{
+  "name": "byte-bargain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:aziemp66/byte-bargain.git",
+  "author": "Azie Melza Pratama <aziemp66@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.3.2"
+  }
+}

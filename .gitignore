@@ -18,6 +18,12 @@ application.log
 # ...even if they are in subdirectories
 !public/*/
 
+#ignore node_modules
+node_modules/
+
+#ignore tailwind output
+**/output.css
+
 #auto run
 .air.toml
 tmp/
