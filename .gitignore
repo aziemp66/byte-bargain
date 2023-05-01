@@ -17,3 +17,7 @@ application.log
 
 # ...even if they are in subdirectories
 !public/*/
+
+#auto run
+.air.toml
+tmp/
