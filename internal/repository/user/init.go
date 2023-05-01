@@ -144,7 +144,7 @@ func (u UserRepositoryImplementation) InsertSeller(ctx context.Context, tx *sql.
 }
 
 func (u UserRepositoryImplementation) UpdateCustomerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender string, birthdate time.Time) error {
-	query := `UPDATE customer set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ? WHERE user_id = ?`
+	query := `UPDATE customer set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ? WHERE customer_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, name, address, phoneNumber, gender, birthdate, userID)
 
@@ -156,7 +156,7 @@ func (u UserRepositoryImplementation) UpdateCustomerByID(ctx context.Context, tx
 }
 
 func (u UserRepositoryImplementation) UpdateSellerByID(ctx context.Context, tx *sql.Tx, userID, name, address, phoneNumber, gender, identityNumber, bankName, debitNumber string, birthdate time.Time) error {
-	query := `UPDATE seller set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ?, identity_number = ?, bank_name = ?, debit_number = ? WHERE user_id = ?`
+	query := `UPDATE seller set name = ?, address = ?, phone_number = ?, gender = ?, date_of_birth = ?, identity_number = ?, bank_name = ?, debit_number = ? WHERE customer_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, name, address, phoneNumber, gender, birthdate, identityNumber, bankName, debitNumber, userID)
 

@@ -5,6 +5,7 @@ import (
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	httpMiddleware "github.com/aziemp66/byte-bargain/common/http/middleware"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	userUseCase "github.com/aziemp66/byte-bargain/internal/usecase/user"
@@ -26,9 +27,12 @@ func NewUserController(router *gin.RouterGroup, userUsecase userUseCase.Usecase,
 	router.POST("/register/seller", userController.RegisterSeller)
 	router.POST("/forgot-password", userController.ForgotPassword)
 	router.POST("/reset-password", userController.ResetPassword)
-	router.POST("/change-password/:id", userController.ChangePassword)
-	router.PUT("/customer/:id", userController.UpdateCustomerByID)
-	router.PUT("/seller/:id", userController.UpdateSellerByID)
+
+	authRouter := router.Group("/", httpMiddleware.SessionAuthMiddleware(sessionManager))
+
+	authRouter.POST("/change-password", userController.ChangePassword)
+	authRouter.PUT("/customer", userController.UpdateCustomer)
+	authRouter.PUT("/seller", userController.UpdateSeller)
 }
 
 func (u *UserController) Login(c *gin.Context) {
@@ -161,7 +165,7 @@ func (u *UserController) ChangePassword(ctx *gin.Context) {
 	})
 }
 
-func (u *UserController) UpdateCustomerByID(ctx *gin.Context) {
+func (u *UserController) UpdateCustomer(ctx *gin.Context) {
 	var req httpCommon.UpdateCustomer
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -171,7 +175,14 @@ func (u *UserController) UpdateCustomerByID(ctx *gin.Context) {
 
 	userID := ctx.GetString("user_id")
 
-	err := u.UserUsecase.UpdateCustomerByID(ctx, userID, req)
+	customer, err := u.UserUsecase.GetCustomerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = u.UserUsecase.UpdateCustomerByID(ctx, customer.CustomerID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -184,7 +195,7 @@ func (u *UserController) UpdateCustomerByID(ctx *gin.Context) {
 	})
 }
 
-func (u *UserController) UpdateSellerByID(ctx *gin.Context) {
+func (u *UserController) UpdateSeller(ctx *gin.Context) {
 	var req httpCommon.UpdateSeller
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -194,7 +205,14 @@ func (u *UserController) UpdateSellerByID(ctx *gin.Context) {
 
 	userID := ctx.GetString("user_id")
 
-	err := u.UserUsecase.UpdateSellerByID(ctx, userID, req)
+	seller, err := u.UserUsecase.GetSellerByUserID(ctx, userID)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	err = u.UserUsecase.UpdateSellerByID(ctx, seller.SellerID, req)
 
 	if err != nil {
 		ctx.Error(err)

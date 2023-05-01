@@ -58,8 +58,8 @@ func main() {
 	api := httpServer.Router.Group("/api", httpCommon.MiddlewareErrorHandler(cfg.WebURL))
 
 	UserRepository := userRepository.NewUserRepositoryImplementation()
-	UserUseCase := userUseCase.NewUserUsecaseImplementation(UserRepository, db, sessionManager, passwordManager, jwtManager, mailDialer)
-	userController.NewUserController(api.Group("/user"), UserUseCase)
+	UserUseCase := userUseCase.NewUserUsecaseImplementation(UserRepository, db, passwordManager, jwtManager, mailDialer, cfg.WebURL)
+	userController.NewUserController(api.Group("/user"), UserUseCase, sessionManager)
 
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
 	ProductUseCase := productUseCase.NewProductUsecaseImplementation(ProductRepository, db, sessionManager)
