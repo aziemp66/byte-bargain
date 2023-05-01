@@ -142,17 +142,7 @@ func (w *WebController) ProductDetail(ctx *gin.Context) {
 }
 
 func (w *WebController) CustomerCart(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	cartItems, err := w.ProductUsecase.GetCustomerCart(ctx, userID)
+	cartItems, err := w.ProductUsecase.GetCustomerCart(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -172,17 +162,7 @@ func (w *WebController) CustomerCheckout(ctx *gin.Context) {
 }
 
 func (w *WebController) CustomerOrder(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, userID)
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -223,17 +203,7 @@ func (w *WebController) CustomerOrderDetail(ctx *gin.Context) {
 		return
 	}
 
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, userID)
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -259,17 +229,7 @@ func (w *WebController) CustomerOrderDetail(ctx *gin.Context) {
 }
 
 func (w *WebController) CustomerSelfProfile(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, userID)
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -286,17 +246,7 @@ func (w *WebController) CustomerSelfProfile(ctx *gin.Context) {
 }
 
 func (w *WebController) SellerProduct(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -340,17 +290,7 @@ func (w *WebController) SellerProductDetail(ctx *gin.Context) {
 		return
 	}
 
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -376,17 +316,7 @@ func (w *WebController) SellerProductDetail(ctx *gin.Context) {
 }
 
 func (w *WebController) SellerOrder(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -424,17 +354,7 @@ func (w *WebController) SellerOrderDetail(ctx *gin.Context) {
 		return
 	}
 
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -458,17 +378,7 @@ func (w *WebController) SellerOrderDetail(ctx *gin.Context) {
 }
 
 func (w *WebController) SellerSelfProfile(ctx *gin.Context) {
-	userID, ok := w.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": "user_id not found",
-		})
-		return
-	}
-
-	seller, err := w.UserUsecase.GetSellerByUserID(ctx, userID)
+	seller, err := w.UserUsecase.GetSellerByUserID(ctx, ctx.GetString("user_id"))
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
