@@ -1,10 +1,10 @@
 package user
 
 import (
+	"context"
 	"database/sql"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"gopkg.in/gomail.v2"
 
 	dbCommon "github.com/aziemp66/byte-bargain/common/db"
@@ -13,7 +13,6 @@ import (
 	jwtCommon "github.com/aziemp66/byte-bargain/common/jwt"
 	mailCommon "github.com/aziemp66/byte-bargain/common/mail"
 	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
-	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 )
@@ -21,35 +20,35 @@ import (
 type UserUsecaseImplementation struct {
 	UserRepository      userRepository.Repository
 	DB                  *sql.DB
-	SessionManager      *sessionCommon.SessionManager
 	PasswordHashManager *passwordCommon.PasswordHashManager
 	JWTManager          *jwtCommon.JWTManager
 	MailDialer          *gomail.Dialer
+	WebURL              string
 }
 
 func NewUserUsecaseImplementation(
 	userRepository userRepository.Repository,
 	db *sql.DB,
-	sessionManager *sessionCommon.SessionManager,
 	passwordManager *passwordCommon.PasswordHashManager,
 	jwtManager *jwtCommon.JWTManager,
 	mailDialer *gomail.Dialer,
+	webURL string,
 ) *UserUsecaseImplementation {
 	return &UserUsecaseImplementation{
 		UserRepository:      userRepository,
 		DB:                  db,
-		SessionManager:      sessionManager,
 		PasswordHashManager: passwordManager,
 		JWTManager:          jwtManager,
 		MailDialer:          mailDialer,
+		WebURL:              webURL,
 	}
 }
 
-func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Login) error {
+func (u *UserUsecaseImplementation) Login(ctx context.Context, login httpCommon.Login) (userID string, err error) {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
-		return errorCommon.NewInvariantError("failed to begin transaction")
+		return "", errorCommon.NewInvariantError("failed to begin transaction")
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
@@ -57,25 +56,19 @@ func (u *UserUsecaseImplementation) Login(ctx *gin.Context, login httpCommon.Log
 	user, err := u.UserRepository.GetUserByEmail(ctx, tx, login.Email)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = u.PasswordHashManager.CheckPasswordHash(login.Password, user.Password)
 
 	if err != nil {
-		return errorCommon.NewInvariantError("invalid password")
+		return "", errorCommon.NewInvariantError("invalid password")
 	}
 
-	err = u.SessionManager.SetSessionValue(ctx, "user_id", user.UserID)
-
-	if err != nil {
-		return errorCommon.NewInvariantError("failed to set session value")
-	}
-
-	return nil
+	return user.UserID, nil
 }
 
-func (u *UserUsecaseImplementation) RegisterCustomer(ctx *gin.Context, registerCustomer httpCommon.RegisterCustomer) error {
+func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -127,7 +120,7 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx *gin.Context, registerC
 	return nil
 }
 
-func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSeller httpCommon.RegisterSeller) error {
+func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -179,7 +172,7 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx *gin.Context, registerSel
 	return nil
 }
 
-func (u *UserUsecaseImplementation) GetCustomerByUserID(ctx *gin.Context, UserID string) (httpCommon.Customer, error) {
+func (u *UserUsecaseImplementation) GetCustomerByUserID(ctx context.Context, UserID string) (httpCommon.Customer, error) {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -213,7 +206,7 @@ func (u *UserUsecaseImplementation) GetCustomerByUserID(ctx *gin.Context, UserID
 
 }
 
-func (u *UserUsecaseImplementation) GetSellerByUserID(ctx *gin.Context, UserID string) (httpCommon.Seller, error) {
+func (u *UserUsecaseImplementation) GetSellerByUserID(ctx context.Context, UserID string) (httpCommon.Seller, error) {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -249,7 +242,7 @@ func (u *UserUsecaseImplementation) GetSellerByUserID(ctx *gin.Context, UserID s
 	}, nil
 }
 
-func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error {
+func (u *UserUsecaseImplementation) ForgotPassword(ctx context.Context, forgotPassword httpCommon.ForgotPassword) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -279,13 +272,13 @@ func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassw
 		Token: token,
 	}
 
-	mailTemplate, err := mailCommon.RenderPasswordResetTemplate(mailPasswordReset, ctx.GetString("web_url"))
+	mailTemplate, err := mailCommon.RenderPasswordResetTemplate(mailPasswordReset, u.WebURL)
 
 	if err != nil {
 		return err
 	}
 
-	message := mailCommon.NewMessage(ctx.GetString("web_email"), user.Email, "Reset Password", mailTemplate)
+	message := mailCommon.NewMessage(u.MailDialer.Host, user.Email, "Reset Password", mailTemplate)
 
 	err = u.MailDialer.DialAndSend(message)
 
@@ -296,7 +289,7 @@ func (u *UserUsecaseImplementation) ForgotPassword(ctx *gin.Context, forgotPassw
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, resetPassword httpCommon.ResetPassword) error {
+func (u *UserUsecaseImplementation) ResetPassword(ctx context.Context, resetPassword httpCommon.ResetPassword) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -336,7 +329,7 @@ func (u *UserUsecaseImplementation) ResetPassword(ctx *gin.Context, resetPasswor
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, ChangePassword httpCommon.ChangePassword) error {
+func (u *UserUsecaseImplementation) ChangePassword(ctx context.Context, userID string, ChangePassword httpCommon.ChangePassword) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -345,20 +338,10 @@ func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, ChangePassw
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	id, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("invalid session")
-	}
-
-	user, err := u.UserRepository.GetUserByID(ctx, tx, id)
+	user, err := u.UserRepository.GetUserByID(ctx, tx, userID)
 
 	if err != nil {
 		return err
-	}
-
-	if user.UserID == "" {
-		return errorCommon.NewInvariantError("user not found")
 	}
 
 	err = u.PasswordHashManager.CheckPasswordHash(ChangePassword.OldPassword, user.Password)
@@ -373,7 +356,7 @@ func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, ChangePassw
 		return errorCommon.NewInvariantError("failed to hash new password")
 	}
 
-	err = u.UserRepository.UpdateUserPasswordByID(ctx, tx, id, newPassword)
+	err = u.UserRepository.UpdateUserPasswordByID(ctx, tx, userID, newPassword)
 
 	if err != nil {
 		return err
@@ -382,7 +365,7 @@ func (u *UserUsecaseImplementation) ChangePassword(ctx *gin.Context, ChangePassw
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, customer httpCommon.UpdateCustomer) error {
+func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx context.Context, customerID string, customer httpCommon.UpdateCustomer) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -390,12 +373,6 @@ func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, custome
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
-
-	userId, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("failed to get user id")
-	}
 
 	customerBirthdate, err := time.Parse("2006-01-02", customer.BirthDate)
 
@@ -403,7 +380,7 @@ func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, custome
 		return errorCommon.NewInvariantError("invalid birthdate")
 	}
 
-	err = u.UserRepository.UpdateCustomerByID(ctx, tx, userId, customer.Name, customer.Address, customer.PhoneNumber, customer.Gender, customerBirthdate)
+	err = u.UserRepository.UpdateCustomerByID(ctx, tx, customerID, customer.Name, customer.Address, customer.PhoneNumber, customer.Gender, customerBirthdate)
 
 	if err != nil {
 		return err
@@ -412,7 +389,7 @@ func (u *UserUsecaseImplementation) UpdateCustomerByID(ctx *gin.Context, custome
 	return nil
 }
 
-func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller httpCommon.UpdateSeller) error {
+func (u *UserUsecaseImplementation) UpdateSellerByID(ctx context.Context, sellerID string, seller httpCommon.UpdateSeller) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -421,19 +398,13 @@ func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller ht
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	userId, ok := u.SessionManager.GetSessionValue(ctx, "user_id").(string)
-
-	if !ok {
-		return errorCommon.NewInvariantError("failed to get user id")
-	}
-
 	sellerBirthdate, err := time.Parse("2006-01-02", seller.BirthDate)
 
 	if err != nil {
 		return errorCommon.NewInvariantError("invalid birthdate")
 	}
 
-	err = u.UserRepository.UpdateSellerByID(ctx, tx, userId, seller.Name, seller.Address, seller.PhoneNumber, seller.Gender, seller.IdentityNumber, seller.BankName, seller.DebitNumber, sellerBirthdate)
+	err = u.UserRepository.UpdateSellerByID(ctx, tx, sellerID, seller.Name, seller.Address, seller.PhoneNumber, seller.Gender, seller.IdentityNumber, seller.BankName, seller.DebitNumber, sellerBirthdate)
 
 	if err != nil {
 		return err
@@ -442,7 +413,7 @@ func (u *UserUsecaseImplementation) UpdateSellerByID(ctx *gin.Context, seller ht
 	return nil
 }
 
-func (u *UserUsecaseImplementation) ActivateAccount(ctx *gin.Context, token string) error {
+func (u *UserUsecaseImplementation) ActivateAccount(ctx context.Context, token string) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -476,7 +447,7 @@ func (u *UserUsecaseImplementation) ActivateAccount(ctx *gin.Context, token stri
 	return nil
 }
 
-func (u *UserUsecaseImplementation) SendActivationEmail(ctx *gin.Context, email string) error {
+func (u *UserUsecaseImplementation) SendActivationEmail(ctx context.Context, email string) error {
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -505,13 +476,13 @@ func (u *UserUsecaseImplementation) SendActivationEmail(ctx *gin.Context, email 
 		Token: token,
 	}
 
-	mailTemplate, err := mailCommon.RenderEmailVerificationTemplate(mailActivation, ctx.GetString("web_url"))
+	mailTemplate, err := mailCommon.RenderEmailVerificationTemplate(mailActivation, u.WebURL)
 
 	if err != nil {
 		return err
 	}
 
-	message := mailCommon.NewMessage(ctx.GetString("web_email"), user.Email, "Activate Account", mailTemplate)
+	message := mailCommon.NewMessage(u.MailDialer.Host, user.Email, "Activate Account", mailTemplate)
 
 	err = u.MailDialer.DialAndSend(message)
 

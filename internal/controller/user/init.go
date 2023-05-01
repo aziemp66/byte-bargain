@@ -5,17 +5,20 @@ import (
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
+	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	userUseCase "github.com/aziemp66/byte-bargain/internal/usecase/user"
 )
 
 type UserController struct {
-	UserUsecase userUseCase.Usecase
+	UserUsecase    userUseCase.Usecase
+	SessionManager *sessionCommon.SessionManager
 }
 
-func NewUserController(router *gin.RouterGroup, userUsecase userUseCase.Usecase) {
+func NewUserController(router *gin.RouterGroup, userUsecase userUseCase.Usecase, sessionManager *sessionCommon.SessionManager) {
 	userController := &UserController{
-		UserUsecase: userUsecase,
+		UserUsecase:    userUsecase,
+		SessionManager: sessionManager,
 	}
 
 	router.POST("/login", userController.Login)
@@ -36,12 +39,14 @@ func (u *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	err := u.UserUsecase.Login(c, req)
+	userID, err := u.UserUsecase.Login(c, req)
 
 	if err != nil {
 		c.Error(err)
 		return
 	}
+
+	u.SessionManager.SetSessionValue(c, "user_id", userID)
 
 	c.JSON(200, httpCommon.Response{
 		Code:    200,
@@ -141,7 +146,9 @@ func (u *UserController) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	err := u.UserUsecase.ChangePassword(ctx, req)
+	userID := ctx.GetString("user_id")
+
+	err := u.UserUsecase.ChangePassword(ctx, userID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -162,7 +169,9 @@ func (u *UserController) UpdateCustomerByID(ctx *gin.Context) {
 		return
 	}
 
-	err := u.UserUsecase.UpdateCustomerByID(ctx, req)
+	userID := ctx.GetString("user_id")
+
+	err := u.UserUsecase.UpdateCustomerByID(ctx, userID, req)
 
 	if err != nil {
 		ctx.Error(err)
@@ -183,7 +192,9 @@ func (u *UserController) UpdateSellerByID(ctx *gin.Context) {
 		return
 	}
 
-	err := u.UserUsecase.UpdateSellerByID(ctx, req)
+	userID := ctx.GetString("user_id")
+
+	err := u.UserUsecase.UpdateSellerByID(ctx, userID, req)
 
 	if err != nil {
 		ctx.Error(err)

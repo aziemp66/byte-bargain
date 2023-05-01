@@ -11,6 +11,7 @@ func SessionAuthMiddleware(sessionManager *sessionCommon.SessionManager) gin.Han
 
 		if !ok || userID == "" {
 			c.AbortWithStatusJSON(401, gin.H{
+				"code":  401,
 				"error": "Unauthorized",
 			})
 			return

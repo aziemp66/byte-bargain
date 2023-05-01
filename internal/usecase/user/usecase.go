@@ -1,21 +1,22 @@
 package user
 
 import (
+	"context"
+
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
-	"github.com/gin-gonic/gin"
 )
 
 type Usecase interface {
-	Login(ctx *gin.Context, login httpCommon.Login) error
-	RegisterCustomer(ctx *gin.Context, registerCustomer httpCommon.RegisterCustomer) error
-	RegisterSeller(ctx *gin.Context, registerSeller httpCommon.RegisterSeller) error
-	GetCustomerByUserID(ctx *gin.Context, userID string) (httpCommon.Customer, error)
-	GetSellerByUserID(ctx *gin.Context, userID string) (httpCommon.Seller, error)
-	ForgotPassword(ctx *gin.Context, forgotPassword httpCommon.ForgotPassword) error
-	ResetPassword(ctx *gin.Context, resetPassword httpCommon.ResetPassword) error
-	ChangePassword(ctx *gin.Context, ChangePassword httpCommon.ChangePassword) error
-	UpdateCustomerByID(ctx *gin.Context, customer httpCommon.UpdateCustomer) error
-	UpdateSellerByID(ctx *gin.Context, seller httpCommon.UpdateSeller) error
-	ActivateAccount(ctx *gin.Context, token string) error
-	SendActivationEmail(ctx *gin.Context, email string) error
+	Login(ctx context.Context, login httpCommon.Login) (userID string, err error)
+	RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error
+	RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error
+	GetCustomerByUserID(ctx context.Context, userID string) (httpCommon.Customer, error)
+	GetSellerByUserID(ctx context.Context, userID string) (httpCommon.Seller, error)
+	ForgotPassword(ctx context.Context, forgotPassword httpCommon.ForgotPassword) error
+	ResetPassword(ctx context.Context, resetPassword httpCommon.ResetPassword) error
+	ChangePassword(ctx context.Context, userID string, ChangePassword httpCommon.ChangePassword) error
+	UpdateCustomerByID(ctx context.Context, customerID string, customer httpCommon.UpdateCustomer) error
+	UpdateSellerByID(ctx context.Context, sellerID string, seller httpCommon.UpdateSeller) error
+	ActivateAccount(ctx context.Context, token string) error
+	SendActivationEmail(ctx context.Context, email string) error
 }

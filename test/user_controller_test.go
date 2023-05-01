@@ -35,8 +35,8 @@ func getDummyUserController() *gin.Engine {
 	jwtManager := jwtCommon.NewJWTManager("secret")
 	mailDialer := mailCommon.New("azielala55@gmail.com", "azie122333", "smtp.gmail.com", 587)
 	UserRepository := userRepository.NewUserRepositoryImplementation()
-	UserUsecase := userUsecase.NewUserUsecaseImplementation(UserRepository, testDb, testSession, passwordManager, jwtManager, mailDialer)
-	userController.NewUserController(userGroup, UserUsecase)
+	UserUsecase := userUsecase.NewUserUsecaseImplementation(UserRepository, testDb, passwordManager, jwtManager, mailDialer, "localhost:3000")
+	userController.NewUserController(userGroup, UserUsecase, testSession)
 	return router
 }
 
