@@ -23,4 +23,6 @@ form.addEventListener('submit', async(e) => {
 		alert(responseData.message);
 		return
 	}
+
+	localStorage.setItem('user', responseData['user_id']);
 });

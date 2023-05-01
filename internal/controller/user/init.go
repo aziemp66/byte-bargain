@@ -56,6 +56,9 @@ func (u *UserController) Login(c *gin.Context) {
 	c.JSON(200, httpCommon.Response{
 		Code:    200,
 		Message: "Login success",
+		Value: gin.H{
+			"user_id": userID,
+		},
 	})
 }
 
