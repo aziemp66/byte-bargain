@@ -1,8 +1,8 @@
 CREATE TABLE `user` (
     `user_id` VARCHAR(36) PRIMARY KEY,
     `email` VARCHAR(225) UNIQUE NOT NULL,
-    `password` VARCHAR(225) NOT NULL
-    `is_verified` BOOLEAN NOT NULL,
+    `password` VARCHAR(225) NOT NULL,
+    `is_verified` BOOLEAN NOT NULL
 );
 CREATE TABLE `customer` (
     `customer_id` VARCHAR(36) PRIMARY KEY,
@@ -11,7 +11,7 @@ CREATE TABLE `customer` (
     `address` VARCHAR(225) NOT NULL,
     `date_of_birth` DATE NOT NULL,
     `phone_number` VARCHAR(20) UNIQUE NOT NULL,
-    `gender` ENUM('Male', 'Female') NOT NULL,
+    `gender` ENUM('Male', 'Female') NOT NULL
 );
 CREATE TABLE `seller` (
     `seller_id` VARCHAR(36) PRIMARY KEY,
@@ -59,7 +59,7 @@ CREATE TABLE `cart_product` (
     `customer_id` VARCHAR(36) NOT NULL,
     `product_id` VARCHAR(36) NOT NULL,
     `quantity` INT NOT NULL
-)
+);
 CREATE TABLE `payment` (
     `payment_id` VARCHAR(36) PRIMARY KEY,
     `order_id` VARCHAR(36) UNIQUE NOT NULL,
@@ -84,9 +84,7 @@ ALTER TABLE `order_product`
 ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
 ALTER TABLE `payment`
 ADD FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`);
-ALTER TABLE `cart`
-ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);
 ALTER TABLE `cart_product`
 ADD FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`);
 ALTER TABLE `cart_product`
-ADD FOREIGN KEY (`cart_id`) REFERENCES `cart` (`cart_id`);
+ADD FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`);

@@ -16,24 +16,24 @@ func MiddlewareErrorHandler(webURL string) gin.HandlerFunc {
 			err := c.Errors[0]
 			// if err can be casted to ClientError, then it is a client error
 			if clientError, ok := err.Err.(errorCommon.ClientError); ok {
-				c.JSON(clientError.Code, Error{
-					Code:    clientError.Code,
-					Message: clientError.Message,
+				c.HTML(clientError.Code, "error", gin.H{
+					"error": clientError.Error(),
+					"code":  clientError.Code,
 				})
 			} else if err.IsType(gin.ErrorTypeBind) {
-				c.JSON(400, Error{
-					Code:    400,
-					Message: err.Err.Error(),
+				c.HTML(400, "error", gin.H{
+					"error": "Bad request",
+					"code":  400,
 				})
 			} else if err.IsType(gin.ErrorTypePrivate) {
-				c.JSON(500, Error{
-					Code:    500,
-					Message: "Internal server error",
+				c.HTML(500, "error", gin.H{
+					"error": "Internal server error",
+					"code":  500,
 				})
 			} else {
-				c.JSON(500, Error{
-					Code:    500,
-					Message: "Internal server error",
+				c.HTML(500, "error", gin.H{
+					"error": "Internal server error",
+					"code":  500,
 				})
 			}
 		}

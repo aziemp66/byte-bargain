@@ -33,6 +33,7 @@ func NewUserController(router *gin.RouterGroup, userUsecase userUseCase.Usecase,
 	authRouter.POST("/change-password", userController.ChangePassword)
 	authRouter.PUT("/customer", userController.UpdateCustomer)
 	authRouter.PUT("/seller", userController.UpdateSeller)
+	authRouter.POST("/logout", userController.Logout)
 }
 
 func (u *UserController) Login(c *gin.Context) {
@@ -218,6 +219,15 @@ func (u *UserController) UpdateSeller(ctx *gin.Context) {
 	ctx.JSON(200, httpCommon.Response{
 		Code:    200,
 		Message: "Update seller success",
+	})
+}
+
+func (u *UserController) Logout(ctx *gin.Context) {
+	u.SessionManager.ClearSession(ctx)
+
+	ctx.JSON(200, httpCommon.Response{
+		Code:    200,
+		Message: "Logout success",
 	})
 }
 
