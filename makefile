@@ -6,8 +6,10 @@ build:
 
 run:
 	yarn
-	npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css
 	air
+
+tailwind:
+	npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css --watch
 
 tidy:
 	go mod tidy
