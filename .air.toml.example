@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "./tmp/main"
-  cmd = "npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css |\ go build -o ./tmp/main ./cmd"
+  cmd = "npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css || go build -o ./tmp/main ./cmd"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
