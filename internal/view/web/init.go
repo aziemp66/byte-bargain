@@ -28,7 +28,7 @@ func NewWebView(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsec
 	router.GET("/register/customer", webController.RegisterCustomer)
 	router.GET("/register/seller", webController.RegisterSeller)
 	router.GET("/forgot-password", webController.ForgotPassword)
-	router.GET("/reset-password/:id/:token", webController.ResetPassword)
+	router.GET("/reset-password", webController.ResetPassword)
 
 	//non-auth routes
 	router.GET("/", webController.Index)
