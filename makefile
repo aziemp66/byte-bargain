@@ -1,6 +1,7 @@
 init:
 	yarn install
 	go mod download
+	cp ./.air.toml.example ./.air.toml
 	npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css
 
 build:
