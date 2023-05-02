@@ -110,18 +110,18 @@ func (w *WebView) SellerProfile(ctx *gin.Context) {
 }
 
 func (w *WebView) Index(ctx *gin.Context) {
-	products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
+	// products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
 
-	if err != nil {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": err.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+	// 		"code":  "500",
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	ctx.HTML(http.StatusOK, "index", gin.H{
-		"products": products,
+		// "products": products,
 	})
 }
 
