@@ -69,6 +69,12 @@ func (u *UserUsecaseImplementation) Login(ctx context.Context, login httpCommon.
 }
 
 func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error {
+	userBirthdate, err := time.Parse("2006-01-02", registerCustomer.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -79,12 +85,19 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 
 	user, err := u.UserRepository.GetUserByEmail(ctx, tx, registerCustomer.Email)
 
-	if err != nil {
+	//return err if error is not no rows
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
 	if user.UserID != "" {
-		return errorCommon.NewInvariantError("email already registered")
+		err = u.UserRepository.InsertCustomer(ctx, tx, user.UserID, registerCustomer.Name, registerCustomer.Address, registerCustomer.PhoneNumber, registerCustomer.Gender, userBirthdate)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	hashedPassword, err := u.PasswordHashManager.HashPassword(registerCustomer.Password)
@@ -97,12 +110,6 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 
 	if err != nil {
 		return err
-	}
-
-	userBirthdate, err := time.Parse("2006-01-02", registerCustomer.BirthDate)
-
-	if err != nil {
-		return errorCommon.NewInvariantError("invalid birthdate")
 	}
 
 	err = u.UserRepository.InsertCustomer(ctx, tx, userId, registerCustomer.Name, registerCustomer.Address, registerCustomer.PhoneNumber, registerCustomer.Gender, userBirthdate)
@@ -121,6 +128,12 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 }
 
 func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error {
+	userBirthdate, err := time.Parse("2006-01-02", registerSeller.BirthDate)
+
+	if err != nil {
+		return errorCommon.NewInvariantError("invalid birthdate")
+	}
+
 	tx, err := u.DB.Begin()
 
 	if err != nil {
@@ -131,12 +144,18 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, register
 
 	user, err := u.UserRepository.GetUserByEmail(ctx, tx, registerSeller.Email)
 
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
 	if user.UserID != "" {
-		return errorCommon.NewInvariantError("email already registered")
+		err = u.UserRepository.InsertSeller(ctx, tx, user.UserID, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	hashedPassword, err := u.PasswordHashManager.HashPassword(registerSeller.Password)
@@ -149,12 +168,6 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, register
 
 	if err != nil {
 		return err
-	}
-
-	userBirthdate, err := time.Parse("2006-01-02", registerSeller.BirthDate)
-
-	if err != nil {
-		return errorCommon.NewInvariantError("invalid birthdate")
 	}
 
 	err = u.UserRepository.InsertSeller(ctx, tx, userId, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)
