@@ -4,7 +4,6 @@ init:
 	npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css
 
 build:
-	echo "Building..."
 	npx tailwindcss -i ./web/static/css/index.css -o ./web/static/css/dist/output.css
 	go build -o tmp/main cmd/main.go
 
