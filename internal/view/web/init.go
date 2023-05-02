@@ -24,14 +24,14 @@ func NewWebView(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsec
 		SessionManager: sessionManager,
 	}
 
-	router.GET("/login", webController.Login)
-	router.GET("/register/customer", webController.RegisterCustomer)
-	router.GET("/register/seller", webController.RegisterSeller)
-	router.GET("/forgot-password", webController.ForgotPassword)
-	router.GET("/reset-password", webController.ResetPassword)
+	router.GET("/login", webController.Login)//done
+	router.GET("/register/customer", webController.RegisterCustomer)//done
+	router.GET("/register/seller", webController.RegisterSeller)//done
+	router.GET("/forgot-password", webController.ForgotPassword)//done
+	router.GET("/reset-password", webController.ResetPassword)//done
 
 	//non-auth routes
-	router.GET("/", webController.Index)
+	router.GET("/", webController.Index)//done
 	router.GET("/product/:id", webController.ProductDetail)
 	router.GET("/product/seller/:sellerID", webController.ProductBySeller)
 	router.GET("/profile/customer/:id", webController.CustomerProfile)
@@ -110,23 +110,7 @@ func (w *WebView) SellerProfile(ctx *gin.Context) {
 }
 
 func (w *WebView) Index(ctx *gin.Context) {
-	// products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
-
-	// if err != nil {
-	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-	// 		"code":  "500",
-	// 		"error": err.Error(),
-	// 	})
-	// 	return
-	// }
-
-	ctx.HTML(http.StatusOK, "index", gin.H{
-		// "products": products,
-	})
-}
-
-func (w *WebView) ProductDetail(ctx *gin.Context) {
-	product, err := w.ProductUsecase.GetProductByID(ctx, ctx.Param("id"))
+	products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -136,8 +120,36 @@ func (w *WebView) ProductDetail(ctx *gin.Context) {
 		return
 	}
 
+	ctx.HTML(http.StatusOK, "index", gin.H{
+		"products": products,
+	})
+}
+
+func (w *WebView) ProductDetail(ctx *gin.Context) {
+	// product, err := w.ProductUsecase.GetProductByID(ctx, ctx.Param("id"))
+
+	// if err != nil {
+	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+	// 		"code":  "500",
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// seller, err := w.UserUsecase.GetSellerByUserID(ctx, product.SellerID)
+
+	// if err != nil {
+	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+	// 		"code":  "500",
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// product.SellerName = seller.Name
+
 	ctx.HTML(http.StatusOK, "product-detail", gin.H{
-		"product": product,
+		// "product": product,
 	})
 }
 

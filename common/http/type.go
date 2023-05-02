@@ -107,6 +107,7 @@ type (
 	Product struct {
 		ID          string   `json:"id"`
 		SellerID    string   `json:"seller_id"`
+		SellerName  string   `json:"seller_name"`
 		Name        string   `json:"name"`
 		Price       float64  `json:"price"`
 		Stock       int      `json:"stock"`
