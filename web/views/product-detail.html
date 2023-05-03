@@ -6,22 +6,21 @@
 <div class="flex justify-center items-center w-screen my-12">
 	<div
 		class="border border-pink-500 rounded-xl grid grid-cols-2 w-4/5 px-16 py-12 gap-16 shadow-xl justify-center items-center">
-		<img class="block w-[475px] h-[300px]" src="https://source.unsplash.com/800x800?motherboard" alt="product-image">
+		<img class="block h-full max-h-[600px]" src={{.Product.Image}} alt="product-image">
 		<div class="flex flex-col">
-			<h1 class="text-4xl text-pink-500 font-bold">Product Name</h1>
-			<p class="font-bold text-secondary-700 text-2xl my-4">Rp 80.000</p>
+			<h1 class="text-4xl text-pink-500 font-bold">{{ .Product.Name }}</h1>
+			<p class="font-bold text-secondary-700 text-2xl my-4">Seller : {{ .Product.SellerName }}</p>
 
-			<p class="text-secondary-700 font-bold text-lg my-8">Stock : 25</p>
+			<p class="font-bold text-pink-500 text-2xl">{{.Product.Price}}</p>
 
-			<p class="text-2xl font-bold text-pink-400">Computer Parts</p>
+			<p class="text-secondary-700 font-bold text-lg my-8">Stock : {{.Product.Stock}}</p>
 
-			<p class="text-gray-800 my-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium tenetur corporis
-				a nemo quisquam numquam
-				nulla beatae, quia fugiat neque veritatis sint corrupti vitae exercitationem veniam eveniet voluptatibus amet
-				ex!
+			<p class="text-2xl font-bold text-pink-400">{{.Product.Category}}</p>
+
+			<p class="text-gray-800 my-4">{{.Product.Description}}
 			</p>
 
-			<p class="font-bold text-black my-4">1.5 Kg</p>
+			<p class="font-bold text-black my-4">{{.Product.Weight}} KG</p>
 
 			<button
 				class="middle none center mr-3 rounded-lg border border-pink-500 py-3 px-6 font-sans text-xs font-bold uppercase text-pink-500 transition-all hover:opacity-75 focus:ring focus:ring-pink-200 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"

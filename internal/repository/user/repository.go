@@ -11,6 +11,8 @@ import (
 type Repository interface {
 	GetUserByID(ctx context.Context, tx *sql.Tx, userID string) (userDomain.User, error)
 	GetUserByEmail(ctx context.Context, tx *sql.Tx, email string) (userDomain.User, error)
+	GetCustomerByID(ctx context.Context, tx *sql.Tx, customerID string) (userDomain.Customer, error)
+	GetSellerByID(ctx context.Context, tx *sql.Tx, sellerID string) (userDomain.Seller, error)
 	GetCustomerByUserID(ctx context.Context, tx *sql.Tx, userID string) (userDomain.Customer, error)
 	GetSellerByUserID(ctx context.Context, tx *sql.Tx, userID string) (userDomain.Seller, error)
 	InsertUser(ctx context.Context, tx *sql.Tx, email, password string) (userID string, Error error)

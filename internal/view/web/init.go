@@ -129,30 +129,30 @@ func (w *WebView) Index(ctx *gin.Context) {
 }
 
 func (w *WebView) ProductDetail(ctx *gin.Context) {
-	// product, err := w.ProductUsecase.GetProductByID(ctx, ctx.Param("id"))
+	product, err := w.ProductUsecase.GetProductByID(ctx, ctx.Param("id"))
 
-	// if err != nil {
-	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-	// 		"code":  "500",
-	// 		"error": err.Error(),
-	// 	})
-	// 	return
-	// }
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
 
-	// seller, err := w.UserUsecase.GetSellerByUserID(ctx, product.SellerID)
+	seller, err := w.UserUsecase.GetSellerByID(ctx, product.SellerID)
 
-	// if err != nil {
-	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-	// 		"code":  "500",
-	// 		"error": err.Error(),
-	// 	})
-	// 	return
-	// }
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
 
-	// product.SellerName = seller.Name
+	product.SellerName = seller.Name
 
 	ctx.HTML(http.StatusOK, "product-detail", gin.H{
-		// "product": product,
+		"Product": product,
 	})
 }
 

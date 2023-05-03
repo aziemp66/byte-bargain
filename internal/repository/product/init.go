@@ -435,7 +435,7 @@ func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx context.Conte
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error {
+func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID string, quantity int) error {
 	query := `UPDATE order_product SET qty = ? WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, orderProductID)
@@ -447,7 +447,7 @@ func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.C
 	return nil
 }
 
-func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error {
+func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID string, quantity int) error {
 	query := `UPDATE cart_product SET qty = ? WHERE cart_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, cartProductID)

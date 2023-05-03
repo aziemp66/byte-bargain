@@ -32,8 +32,8 @@ type Repository interface {
 	InsertImage(ctx context.Context, tx *sql.Tx, image string) (imageID string, err error)
 	UpdateProductByID(ctx context.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error
 	UpdateOrderStatusByID(ctx context.Context, tx *sql.Tx, orderID, status string) error
-	UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error
-	UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error
+	UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID string, quantity int) error
+	UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID string, quantity int) error
 	UpdateLinkImageByID(ctx context.Context, tx *sql.Tx, imageID, productID string) error
 	DeleteProductByID(ctx context.Context, tx *sql.Tx, productID string) error
 	DeleteOrderProductByID(ctx context.Context, tx *sql.Tx, orderProductID string) error

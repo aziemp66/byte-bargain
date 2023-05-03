@@ -545,6 +545,21 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx context.Context, cu
 
 	defer dbCommon.CommitOrRollback(tx)
 
+	cartProducts, err := p.ProductRepository.GetCartProductByCustomerID(ctx, tx, customerID)
+
+	for _, v := range cartProducts {
+		if v.ProductID == cartProduct.ProductID {
+			err = p.ProductRepository.UpdateCartProductQtyByID(ctx, tx, v.CartProductID, v.Quantity+cartProduct.Qty)
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+	}
+
 	err = p.ProductRepository.InsertCartProduct(ctx, tx, customerID, cartProduct.ProductID, cartProduct.Qty)
 
 	if err != nil {
@@ -645,7 +660,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx context.Context
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Context, orderProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Context, orderProductID string, quantity int) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -663,7 +678,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Con
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx context.Context, cartProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx context.Context, cartProductID string, quantity int) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {

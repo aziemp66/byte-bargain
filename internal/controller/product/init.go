@@ -3,6 +3,7 @@ package product
 import (
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -213,6 +214,12 @@ func (p *ProductController) UpdateProduct(ctx *gin.Context) {
 func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
 	cartProductID := ctx.Param("productID")
 	qty := ctx.Param("qty")
+	quantity, err := strconv.Atoi(qty)
+
+	if err != nil {
+		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+		return
+	}
 
 	cartProduct, err := p.ProductUsecase.GetCartProductByID(ctx, cartProductID)
 
@@ -233,7 +240,7 @@ func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
 		return
 	}
 
-	err = p.ProductUsecase.UpdateCartProductQtyByID(ctx, cartProductID, qty)
+	err = p.ProductUsecase.UpdateCartProductQtyByID(ctx, cartProductID, quantity)
 
 	if err != nil {
 		ctx.Error(err)

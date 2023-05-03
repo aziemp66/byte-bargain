@@ -26,8 +26,8 @@ type Usecase interface {
 	InsertImage(ctx context.Context, filepath string) (imagesID string, err error)
 	UpdateProductByID(ctx context.Context, productID string, product httpCommon.ProductRequest) error
 	UpdateOrderStatusByID(ctx context.Context, updateOrderStatus httpCommon.UpdateOrderStatus) error
-	UpdateOrderProductQtyByID(ctx context.Context, orderProductID, quantity string) error
-	UpdateCartProductQtyByID(ctx context.Context, cartProductID, quantity string) error
+	UpdateOrderProductQtyByID(ctx context.Context, orderProductID string, quantity int) error
+	UpdateCartProductQtyByID(ctx context.Context, cartProductID string, quantity int) error
 	DeleteProductByID(ctx context.Context, productID string) error
 	DeleteCartProductByID(ctx context.Context, cartProductID string) error
 }
