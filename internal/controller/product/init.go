@@ -1,7 +1,10 @@
 package product
 
 import (
+	"path/filepath"
+
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
@@ -28,6 +31,7 @@ func NewProductController(router *gin.RouterGroup, productUsecase productUseCase
 	router.Use(httpMiddleware.SessionAuthMiddleware(productController.SessionManager))
 
 	router.POST("/product", productController.AddProduct)
+	router.POST("/product/image", productController.AddProductImage)
 	router.POST("/cart", productController.AddProductToCart)
 	router.POST("/order", productController.CreateOrder)
 	router.PUT("/product/:productID", productController.UpdateProduct)
@@ -92,6 +96,34 @@ func (p *ProductController) AddProduct(ctx *gin.Context) {
 		Message: "Product added",
 	})
 }
+
+func (p *ProductController) AddProductImage(ctx *gin.Context) {
+	file, err := ctx.FormFile("image")
+
+	if err != nil {
+		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+		return
+	}
+
+	// Retrieve file information
+	extension := filepath.Ext(file.Filename)
+	// Generate random file name for the new uploaded file so it doesn't override the old file with same name
+	newFileName := uuid.New().String() + extension
+
+	// The file is received, so let's save it
+	if err := ctx.SaveUploadedFile(file, "/public/product_image/"+newFileName); err != nil {
+		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+		return
+	}
+
+	p.ProductUsecase.InsertImage(ctx, newFileName)
+
+	ctx.JSON(200, httpCommon.Response{
+		Code:    200,
+		Message: "Product image added",
+	})
+}
+
 func (p *ProductController) AddProductToCart(ctx *gin.Context) {
 	var req httpCommon.AddCartProduct
 

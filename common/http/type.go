@@ -105,16 +105,16 @@ type (
 	}
 
 	Product struct {
-		ID          string   `json:"id"`
-		SellerID    string   `json:"seller_id"`
-		SellerName  string   `json:"seller_name"`
-		Name        string   `json:"name"`
-		Price       float64  `json:"price"`
-		Stock       int      `json:"stock"`
-		Category    string   `json:"category"`
-		Description string   `json:"description"`
-		Weight      float64  `json:"weight"`
-		Image       []string `json:"image"`
+		ID          string  `json:"id"`
+		SellerID    string  `json:"seller_id"`
+		SellerName  string  `json:"seller_name"`
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
+		Image       string  `json:"image"`
 	}
 
 	ProductRequest struct {
