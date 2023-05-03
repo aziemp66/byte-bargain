@@ -78,7 +78,7 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 	tx, err := u.DB.Begin()
 
 	if err != nil {
-		return errorCommon.NewInvariantError("failed to begin transaction")
+		return errorCommon.NewInvariantError(err.Error())
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
@@ -89,6 +89,8 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
+
+	err = nil
 
 	if user.UserID != "" {
 		err = u.UserRepository.InsertCustomer(ctx, tx, user.UserID, registerCustomer.Name, registerCustomer.Address, registerCustomer.PhoneNumber, registerCustomer.Gender, userBirthdate)
@@ -147,6 +149,8 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, register
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
+
+	err = nil
 
 	if user.UserID != "" {
 		err = u.UserRepository.InsertSeller(ctx, tx, user.UserID, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)

@@ -22,7 +22,7 @@ func NewSessionManager(secretKey []byte) *SessionManager {
 	option := sessions.Options{
 		Path:     "/",
 		MaxAge:   86400 * 7,
-		HttpOnly: true,
+		HttpOnly: false,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	}

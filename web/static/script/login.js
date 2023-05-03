@@ -24,5 +24,9 @@ form.addEventListener('submit', async(e) => {
 		return
 	}
 
-	localStorage.setItem('user', responseData['user_id']);
+	console.log(responseData);
+
+	localStorage.setItem('user', responseData.value['user_id']);
+
+	window.location.href = '/';
 });

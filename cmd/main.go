@@ -69,6 +69,8 @@ func main() {
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
 
+	fmt.Println("database URL:", cfg.DatabaseURL)
+
 	if err != nil {
 		panic(err)
 	}
