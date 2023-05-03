@@ -302,7 +302,7 @@ func (w *WebView) SellerProduct(ctx *gin.Context) {
 }
 
 func (w *WebView) SellerProductAdd(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "seller-product-add", gin.H{})
+	ctx.HTML(http.StatusOK, "seller/product-add", gin.H{})
 }
 
 func (w *WebView) SellerProductDetail(ctx *gin.Context) {
