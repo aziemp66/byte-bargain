@@ -40,6 +40,7 @@ func NewHTTPServer(ginMode string) HTTPServer {
 	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
 	router := gin.Default()
+	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 	return HTTPServer{
 		Router: router,
 	}

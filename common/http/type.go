@@ -118,13 +118,13 @@ type (
 	}
 
 	ProductRequest struct {
-		Name        string   `json:"name"`
-		Price       float64  `json:"price"`
-		Stock       int      `json:"stock"`
-		Category    string   `json:"category"`
-		Description string   `json:"description"`
-		Weight      float64  `json:"weight"`
-		Images      []string `json:"images"`
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
+		Image       string  `json:"image"`
 	}
 	ProductItem struct {
 		ProductID string `json:"product_id"`

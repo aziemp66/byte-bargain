@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	httpMiddleware "github.com/aziemp66/byte-bargain/common/http/middleware"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	productUC "github.com/aziemp66/byte-bargain/internal/usecase/product"
@@ -36,6 +37,8 @@ func NewWebView(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsec
 	router.GET("/product/seller/:sellerID", webController.ProductBySeller) //done
 	router.GET("/profile/customer/:id", webController.CustomerProfile)
 	router.GET("/profile/seller/:id", webController.SellerProfile)
+
+	router.Use(httpMiddleware.SessionAuthMiddleware(webController.SessionManager))
 
 	//customer-auth routes
 	customerRouter := router.Group("/customer")

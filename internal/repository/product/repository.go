@@ -23,7 +23,7 @@ type Repository interface {
 	GetCartProductByCustomerID(ctx context.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error)
 	GetAllOrderProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error)
 	GetPaymentByID(ctx context.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error)
-	InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error
+	InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) (productID string, err error)
 	InsertOrder(ctx context.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error
 	InsertOrderProduct(ctx context.Context, tx *sql.Tx, orderID, productID string, quantity int) error
 	InsertCartProduct(ctx context.Context, tx *sql.Tx, customerID, productID string, quantity int) error

@@ -458,7 +458,13 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx context.Context, seller
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	err = p.ProductRepository.InsertProduct(ctx, tx, sellerID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+	productID, err := p.ProductRepository.InsertProduct(ctx, tx, sellerID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+
+	if err != nil {
+		return err
+	}
+
+	err = p.ProductRepository.UpdateLinkImageByID(ctx, tx, product.Image, productID)
 
 	if err != nil {
 		return err

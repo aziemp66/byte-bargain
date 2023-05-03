@@ -1,10 +1,10 @@
 package product
 
 import (
-	"path/filepath"
+	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	httpCommon "github.com/aziemp66/byte-bargain/common/http"
@@ -21,6 +21,18 @@ type ProductController struct {
 	SessionManager *sessionCommon.SessionManager
 }
 
+var (
+	BasePath = ""
+)
+
+func init() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	BasePath = wd + "/public/product_image"
+}
+
 func NewProductController(router *gin.RouterGroup, productUsecase productUseCase.Usecase, userUsecase userUsecase.Usecase, sessionManager *sessionCommon.SessionManager) {
 	productController := ProductController{
 		ProductUsecase: productUsecase,
@@ -30,15 +42,15 @@ func NewProductController(router *gin.RouterGroup, productUsecase productUseCase
 
 	router.Use(httpMiddleware.SessionAuthMiddleware(productController.SessionManager))
 
-	router.POST("/product", productController.AddProduct)
-	router.POST("/product/image", productController.AddProductImage)
+	router.POST("/", productController.AddProduct)
+	router.POST("/image", productController.AddProductImage)
 	router.POST("/cart", productController.AddProductToCart)
 	router.POST("/order", productController.CreateOrder)
-	router.PUT("/product/:productID", productController.UpdateProduct)
+	router.PUT("/:productID", productController.UpdateProduct)
 	router.PUT("/order/status", productController.UpdateOrderStatus)
 	router.PUT("/cart/:productID/:qty", productController.UpdateProductQtyInCart)
 	router.DELETE("/cart/:productID", productController.DeleteProductInCart)
-	router.DELETE("/product/:productID", productController.DeleteProduct)
+	router.DELETE("/:productID", productController.DeleteProduct)
 }
 
 func (p *ProductController) CreateOrder(ctx *gin.Context) {
@@ -105,22 +117,26 @@ func (p *ProductController) AddProductImage(ctx *gin.Context) {
 		return
 	}
 
-	// Retrieve file information
-	extension := filepath.Ext(file.Filename)
-	// Generate random file name for the new uploaded file so it doesn't override the old file with same name
-	newFileName := uuid.New().String() + extension
+	fileName, err := p.saveFile(ctx, file)
 
-	// The file is received, so let's save it
-	if err := ctx.SaveUploadedFile(file, "/public/product_image/"+newFileName); err != nil {
-		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+	if err != nil {
+		ctx.Error(err)
 		return
 	}
 
-	p.ProductUsecase.InsertImage(ctx, newFileName)
+	imageID, err := p.ProductUsecase.InsertImage(ctx, fileName)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
 
 	ctx.JSON(200, httpCommon.Response{
 		Code:    200,
 		Message: "Product image added",
+		Value: gin.H{
+			"image": imageID,
+		},
 	})
 }
 

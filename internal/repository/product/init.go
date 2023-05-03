@@ -312,18 +312,18 @@ func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx context.Context,
 	return orderProducts, nil
 }
 
-func (p ProductRepositoryImplementation) InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error {
-	query := `INSERT INTO product (product_id, seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?)`
+func (p ProductRepositoryImplementation) InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) (productID string, err error) {
+	query := `INSERT INTO product (product_id, seller_id, name, price, stock, category, description, weight) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	productID := uuid.New().String()
+	productID = uuid.New().String()
 
-	_, err := tx.ExecContext(ctx, query, productID, sellerID, productName, price, stock, category, description, weight)
+	_, err = tx.ExecContext(ctx, query, productID, sellerID, productName, price, stock, category, description, weight)
 
 	if err != nil {
-		return errorCommon.NewInvariantError(err.Error())
+		return "", errorCommon.NewInvariantError(err.Error())
 	}
 
-	return nil
+	return productID, nil
 }
 
 func (p ProductRepositoryImplementation) InsertOrder(ctx context.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error {
@@ -383,7 +383,7 @@ func (p ProductRepositoryImplementation) InsertPayment(ctx context.Context, tx *
 }
 
 func (p ProductRepositoryImplementation) InsertImage(ctx context.Context, tx *sql.Tx, image string) (imageID string, err error) {
-	query := `INSERT INTO image (product_image_id, image) VALUES (?, ?)`
+	query := `INSERT INTO product_image (product_image_id, image_url) VALUES (?, ?)`
 
 	productImageID := uuid.New().String()
 
@@ -445,7 +445,7 @@ func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx context.Co
 }
 
 func (p ProductRepositoryImplementation) UpdateLinkImageByID(ctx context.Context, tx *sql.Tx, imageID, productID string) error {
-	query := `UPDATE image SET product_id = ? WHERE product_image_id = ?`
+	query := `UPDATE product_image SET product_id = ? WHERE product_image_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, productID, imageID)
 

@@ -12,8 +12,6 @@ if (!userID || userID == 'undefined' || userID == "" || userID == null) {
 
 document.getElementById('logout').addEventListener('click', async (e) => {
 	e.preventDefault();
-	
-	localStorage.removeItem('user');
 
 	const response = await fetch("/api/user/logout", {
 		method: "POST",
