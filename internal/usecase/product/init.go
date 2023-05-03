@@ -87,6 +87,12 @@ func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx context.Context
 			return nil, err
 		}
 
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
+
 		recommenddedProducts = append(recommenddedProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -96,6 +102,7 @@ func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx context.Context
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -120,6 +127,11 @@ func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx context.Context, s
 	var searchedProducts []httpCommon.Product
 
 	for _, product := range products {
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
 		searchedProducts = append(searchedProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -129,6 +141,7 @@ func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx context.Context, s
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -153,6 +166,12 @@ func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx context.Context,
 	var sellerProducts []httpCommon.Product
 
 	for _, product := range products {
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
+
 		sellerProducts = append(sellerProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -162,6 +181,7 @@ func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx context.Context,
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -183,6 +203,12 @@ func (p *ProductUsecaseImplementation) GetProductByID(ctx context.Context, produ
 		return httpCommon.Product{}, err
 	}
 
+	image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+	if err != nil {
+		return httpCommon.Product{}, err
+	}
+
 	return httpCommon.Product{
 		ID:          product.ProductID,
 		SellerID:    product.SellerID,
@@ -192,6 +218,7 @@ func (p *ProductUsecaseImplementation) GetProductByID(ctx context.Context, produ
 		Category:    product.Category,
 		Description: product.Description,
 		Weight:      product.Weight,
+		Image:       "/product_image/" + image.Image,
 	}, nil
 }
 

@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
+
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
 	productDomain "github.com/aziemp66/byte-bargain/internal/domain/product"
-	"github.com/google/uuid"
 )
 
 type ProductRepositoryImplementation struct {
@@ -310,6 +311,20 @@ func (p ProductRepositoryImplementation) GetAllOrderProduct(ctx context.Context,
 	}
 
 	return orderProducts, nil
+}
+
+func (p ProductRepositoryImplementation) GetImageByProductID(ctx context.Context, tx *sql.Tx, productID string) (productDomain.ProductImage, error) {
+	var productImage productDomain.ProductImage
+
+	query := `SELECT product_image_id, product_id, image_url FROM product_image where product_id = ?`
+
+	err := tx.QueryRowContext(ctx, query, productID).Scan(&productImage.ProductImageID, &productImage.ProductID, &productImage.Image)
+
+	if err != nil {
+		return productImage, errorCommon.NewInvariantError(err.Error())
+	}
+
+	return productImage, nil
 }
 
 func (p ProductRepositoryImplementation) InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) (productID string, err error) {
