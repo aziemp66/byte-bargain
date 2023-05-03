@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -370,7 +371,7 @@ func (p ProductRepositoryImplementation) InsertOrderProduct(ctx context.Context,
 }
 
 func (p ProductRepositoryImplementation) InsertCartProduct(ctx context.Context, tx *sql.Tx, customerID, productID string, quantity int) error {
-	query := `INSERT INTO cart_product (cart_product_id, customer_id, product_id, quantity) VALUES (?, ?, ?)`
+	query := `INSERT INTO cart_product (cart_product_id, customer_id, product_id, quantity) VALUES (?, ?, ?, ?)`
 
 	cartProductID := uuid.New().String()
 
@@ -379,6 +380,8 @@ func (p ProductRepositoryImplementation) InsertCartProduct(ctx context.Context, 
 	if err != nil {
 		return errorCommon.NewInvariantError(err.Error())
 	}
+
+	fmt.Println("insert cart product success")
 
 	return nil
 }
@@ -436,7 +439,7 @@ func (p ProductRepositoryImplementation) UpdateOrderStatusByID(ctx context.Conte
 }
 
 func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID string, quantity int) error {
-	query := `UPDATE order_product SET qty = ? WHERE order_product_id = ?`
+	query := `UPDATE order_product SET quantity = ? WHERE order_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, orderProductID)
 
@@ -448,7 +451,7 @@ func (p ProductRepositoryImplementation) UpdateOrderProductQtyByID(ctx context.C
 }
 
 func (p ProductRepositoryImplementation) UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID string, quantity int) error {
-	query := `UPDATE cart_product SET qty = ? WHERE cart_product_id = ?`
+	query := `UPDATE cart_product SET quantity = ? WHERE cart_product_id = ?`
 
 	_, err := tx.ExecContext(ctx, query, quantity, cartProductID)
 
