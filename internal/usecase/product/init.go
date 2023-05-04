@@ -441,6 +441,7 @@ func (p *ProductUsecaseImplementation) GetCustomerCart(ctx context.Context, cust
 		products = append(products, httpCommon.CartProduct{
 			CartProductID: v.CartProductID,
 			ProductID:     v.ProductID,
+			Name:          product.Name,
 			Price:         product.Price,
 			Qty:           v.Quantity,
 		})
@@ -546,6 +547,10 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx context.Context, cu
 	defer dbCommon.CommitOrRollback(tx)
 
 	cartProducts, err := p.ProductRepository.GetCartProductByCustomerID(ctx, tx, customerID)
+
+	if err != nil {
+		return err
+	}
 
 	for _, v := range cartProducts {
 		if v.ProductID == cartProduct.ProductID {

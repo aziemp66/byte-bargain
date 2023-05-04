@@ -169,6 +169,7 @@ type (
 		CartProductID string  `json:"cart_product_id"`
 		ProductID     string  `json:"product_id"`
 		CustomerID    string  `json:"customer_id"`
+		Name          string  `json:"name"`
 		Price         float64 `json:"price"`
 		Qty           int     `json:"qty"`
 	}

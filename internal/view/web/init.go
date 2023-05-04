@@ -173,7 +173,17 @@ func (w *WebView) ProductBySeller(ctx *gin.Context) {
 }
 
 func (w *WebView) CustomerCart(ctx *gin.Context) {
-	cartItems, err := w.ProductUsecase.GetCustomerCart(ctx, ctx.GetString("user_id"))
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	cart, err := w.ProductUsecase.GetCustomerCart(ctx, customer.CustomerID)
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -184,7 +194,8 @@ func (w *WebView) CustomerCart(ctx *gin.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "cart", gin.H{
-		"cart_items": cartItems,
+		"Items": cart.Items,
+		"Total": cart.TotalPayment,
 	})
 }
 
