@@ -1,3 +1,4 @@
+// main file for the program
 package main
 
 import (
@@ -13,15 +14,12 @@ import (
 	jwtCommon "github.com/aziemp66/byte-bargain/common/jwt"
 	passwordCommon "github.com/aziemp66/byte-bargain/common/password"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
-
-	userController "github.com/aziemp66/byte-bargain/internal/controller/user"
-	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
-	userUseCase "github.com/aziemp66/byte-bargain/internal/usecase/user"
-
 	productController "github.com/aziemp66/byte-bargain/internal/controller/product"
+	userController "github.com/aziemp66/byte-bargain/internal/controller/user"
 	productRepository "github.com/aziemp66/byte-bargain/internal/repository/product"
+	userRepository "github.com/aziemp66/byte-bargain/internal/repository/user"
 	productUseCase "github.com/aziemp66/byte-bargain/internal/usecase/product"
-
+	userUseCase "github.com/aziemp66/byte-bargain/internal/usecase/user"
 	webView "github.com/aziemp66/byte-bargain/internal/view/web"
 )
 
@@ -33,11 +31,10 @@ func main() {
 		Root:         "web/views",
 		Extension:    ".html",
 		Master:       "layouts/master",
+		Partials:     []string{},
+		Funcs:        map[string]any{},
 		DisableCache: false,
-		Delims: goview.Delims{
-			Left:  "{{",
-			Right: "}}",
-		},
+		Delims:       goview.Delims{Left: "{{", Right: "}}"},
 	}
 
 	httpServer := httpCommon.NewHTTPServer(cfg.GinMode)
@@ -48,7 +45,12 @@ func main() {
 	passwordManager := passwordCommon.NewPasswordHashManager()
 	jwtManager := jwtCommon.NewJWTManager(cfg.AccessTokenKey)
 
-	mailDialer := gomail.NewDialer(cfg.EmailHost, cfg.EmailPort, cfg.EmailUsername, cfg.EmailPassword)
+	mailDialer := gomail.NewDialer(
+		cfg.EmailHost,
+		cfg.EmailPort,
+		cfg.EmailUsername,
+		cfg.EmailPassword,
+	)
 
 	httpServer.Router.Use(sessionManager.GetSessionHandler())
 
@@ -58,17 +60,28 @@ func main() {
 	api := httpServer.Router.Group("/api", httpCommon.MiddlewareErrorHandler(cfg.WebURL))
 
 	UserRepository := userRepository.NewUserRepositoryImplementation()
-	UserUseCase := userUseCase.NewUserUsecaseImplementation(UserRepository, db, passwordManager, jwtManager, mailDialer, cfg.WebURL)
+	UserUseCase := userUseCase.NewUserUsecaseImplementation(
+		UserRepository,
+		db,
+		passwordManager,
+		jwtManager,
+		mailDialer,
+		cfg.WebURL,
+	)
 	userController.NewUserController(api.Group("/user"), UserUseCase, sessionManager)
 
 	ProductRepository := productRepository.NewProductRepositoryImplementation()
 	ProductUseCase := productUseCase.NewProductUsecaseImplementation(ProductRepository, db)
-	productController.NewProductController(api.Group("/product"), ProductUseCase, UserUseCase, sessionManager)
+	productController.NewProductController(
+		api.Group("/product"),
+		ProductUseCase,
+		UserUseCase,
+		sessionManager,
+	)
 
 	webView.NewWebView(httpServer.Router.Group("/"), UserUseCase, ProductUseCase, sessionManager)
 
 	err := httpServer.Router.Run(fmt.Sprintf(":%d", cfg.Port))
-
 	if err != nil {
 		panic(err)
 	}
