@@ -78,7 +78,7 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 	tx, err := u.DB.Begin()
 
 	if err != nil {
-		return errorCommon.NewInvariantError("failed to begin transaction")
+		return errorCommon.NewInvariantError(err.Error())
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
@@ -89,6 +89,8 @@ func (u *UserUsecaseImplementation) RegisterCustomer(ctx context.Context, regist
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
+
+	err = nil
 
 	if user.UserID != "" {
 		err = u.UserRepository.InsertCustomer(ctx, tx, user.UserID, registerCustomer.Name, registerCustomer.Address, registerCustomer.PhoneNumber, registerCustomer.Gender, userBirthdate)
@@ -148,6 +150,8 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, register
 		return err
 	}
 
+	err = nil
+
 	if user.UserID != "" {
 		err = u.UserRepository.InsertSeller(ctx, tx, user.UserID, registerSeller.Name, registerSeller.Address, registerSeller.PhoneNumber, registerSeller.Gender, registerSeller.IdentityNumber, registerSeller.BankName, registerSeller.DebitNumber, userBirthdate)
 
@@ -183,6 +187,75 @@ func (u *UserUsecaseImplementation) RegisterSeller(ctx context.Context, register
 	}
 
 	return nil
+}
+
+func (u *UserUsecaseImplementation) GetCustomerByID(ctx context.Context, customerID string) (httpCommon.Customer, error) {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return httpCommon.Customer{}, errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	customer, err := u.UserRepository.GetCustomerByID(ctx, tx, customerID)
+
+	if err != nil {
+		return httpCommon.Customer{}, err
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, customer.UserID)
+
+	if err != nil {
+		return httpCommon.Customer{}, err
+	}
+
+	return httpCommon.Customer{
+		UserID:      customer.UserID,
+		CustomerID:  customer.CustomerID,
+		Email:       user.Email,
+		Name:        customer.Name,
+		Address:     customer.Address,
+		BirthDate:   customer.BirthDate.Format("2006-01-02"),
+		PhoneNumber: customer.PhoneNumber,
+		Gender:      customer.Gender,
+	}, nil
+}
+
+func (u *UserUsecaseImplementation) GetSellerByID(ctx context.Context, sellerID string) (httpCommon.Seller, error) {
+	tx, err := u.DB.Begin()
+
+	if err != nil {
+		return httpCommon.Seller{}, errorCommon.NewInvariantError("failed to begin transaction")
+	}
+
+	defer dbCommon.CommitOrRollback(tx)
+
+	seller, err := u.UserRepository.GetSellerByID(ctx, tx, sellerID)
+
+	if err != nil {
+		return httpCommon.Seller{}, err
+	}
+
+	user, err := u.UserRepository.GetUserByID(ctx, tx, seller.UserID)
+
+	if err != nil {
+		return httpCommon.Seller{}, err
+	}
+
+	return httpCommon.Seller{
+		UserID:         seller.UserID,
+		SellerID:       seller.SellerID,
+		Email:          user.Email,
+		Name:           seller.Name,
+		Address:        seller.Address,
+		BirthDate:      seller.BirthDate.Format("2006-01-02"),
+		PhoneNumber:    seller.PhoneNumber,
+		Gender:         seller.Gender,
+		IdentityNumber: seller.IdentityNumber,
+		BankName:       seller.BankName,
+		DebitNumber:    seller.DebitNumber,
+	}, nil
 }
 
 func (u *UserUsecaseImplementation) GetCustomerByUserID(ctx context.Context, UserID string) (httpCommon.Customer, error) {

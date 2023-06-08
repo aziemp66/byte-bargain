@@ -4,5 +4,8 @@
 
 
 {{define "content"}}
-<h1 class="">This is Home Page</h1>
+<div class="my-8 flex flex-col justify-center items-center">
+	<h1 class="text-3xl text-center text-red-600 font-body">Recommended Products</h1>
+	{{include "includes/product-list" }}
+</div>
 {{end}}

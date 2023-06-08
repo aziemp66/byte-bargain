@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	httpMiddleware "github.com/aziemp66/byte-bargain/common/http/middleware"
 	sessionCommon "github.com/aziemp66/byte-bargain/common/session"
 
 	productUC "github.com/aziemp66/byte-bargain/internal/usecase/product"
@@ -24,18 +25,20 @@ func NewWebView(router *gin.RouterGroup, userUsecase userUC.Usecase, productUsec
 		SessionManager: sessionManager,
 	}
 
-	router.GET("/login", webController.Login)
-	router.GET("/register/customer", webController.RegisterCustomer)
-	router.GET("/register/seller", webController.RegisterSeller)
-	router.GET("/forgot-password", webController.ForgotPassword)
-	router.GET("/reset-password/:id/:token", webController.ResetPassword)
+	router.GET("/login", webController.Login)                        //done
+	router.GET("/register/customer", webController.RegisterCustomer) //done
+	router.GET("/register/seller", webController.RegisterSeller)     //done
+	router.GET("/forgot-password", webController.ForgotPassword)     //done
+	router.GET("/reset-password", webController.ResetPassword)       //done
 
 	//non-auth routes
-	router.GET("/", webController.Index)
-	router.GET("/product/:id", webController.ProductDetail)
-	router.GET("/product/seller/:sellerID", webController.ProductBySeller)
+	router.GET("/", webController.Index)                                   //done
+	router.GET("/product/:id", webController.ProductDetail)                //done
+	router.GET("/product/seller/:sellerID", webController.ProductBySeller) //done
 	router.GET("/profile/customer/:id", webController.CustomerProfile)
 	router.GET("/profile/seller/:id", webController.SellerProfile)
+
+	router.Use(httpMiddleware.SessionAuthMiddleware(webController.SessionManager))
 
 	//customer-auth routes
 	customerRouter := router.Group("/customer")
@@ -110,18 +113,18 @@ func (w *WebView) SellerProfile(ctx *gin.Context) {
 }
 
 func (w *WebView) Index(ctx *gin.Context) {
-	products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
+	// products, err := w.ProductUsecase.GetRecommendedProduct(ctx)
 
-	if err != nil {
-		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
-			"code":  "500",
-			"error": err.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+	// 		"code":  "500",
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	ctx.HTML(http.StatusOK, "index", gin.H{
-		"products": products,
+		// "products": products,
 	})
 }
 
@@ -136,13 +139,7 @@ func (w *WebView) ProductDetail(ctx *gin.Context) {
 		return
 	}
 
-	ctx.HTML(http.StatusOK, "product-detail", gin.H{
-		"product": product,
-	})
-}
-
-func (w *WebView) ProductBySeller(ctx *gin.Context) {
-	products, err := w.ProductUsecase.GetProductBySellerID(ctx, ctx.Param("sellerID"))
+	seller, err := w.UserUsecase.GetSellerByID(ctx, product.SellerID)
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -152,13 +149,41 @@ func (w *WebView) ProductBySeller(ctx *gin.Context) {
 		return
 	}
 
+	product.SellerName = seller.Name
+
+	ctx.HTML(http.StatusOK, "product-detail", gin.H{
+		"Product": product,
+	})
+}
+
+func (w *WebView) ProductBySeller(ctx *gin.Context) {
+	// products, err := w.ProductUsecase.GetProductBySellerID(ctx, ctx.Param("sellerID"))
+
+	// if err != nil {
+	// 	ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+	// 		"code":  "500",
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+
 	ctx.HTML(http.StatusOK, "product-by-seller", gin.H{
-		"products": products,
+		// "products": products,
 	})
 }
 
 func (w *WebView) CustomerCart(ctx *gin.Context) {
-	cartItems, err := w.ProductUsecase.GetCustomerCart(ctx, ctx.GetString("user_id"))
+	customer, err := w.UserUsecase.GetCustomerByUserID(ctx, ctx.GetString("user_id"))
+
+	if err != nil {
+		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
+			"code":  "500",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	cart, err := w.ProductUsecase.GetCustomerCart(ctx, customer.CustomerID)
 
 	if err != nil {
 		ctx.HTML(http.StatusInternalServerError, "error", gin.H{
@@ -169,7 +194,8 @@ func (w *WebView) CustomerCart(ctx *gin.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "cart", gin.H{
-		"cart_items": cartItems,
+		"Items": cart.Items,
+		"Total": cart.TotalPayment,
 	})
 }
 
@@ -290,7 +316,7 @@ func (w *WebView) SellerProduct(ctx *gin.Context) {
 }
 
 func (w *WebView) SellerProductAdd(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "seller-product-add", gin.H{})
+	ctx.HTML(http.StatusOK, "seller/product-add", gin.H{})
 }
 
 func (w *WebView) SellerProductDetail(ctx *gin.Context) {

@@ -2,7 +2,7 @@ CREATE TABLE `user` (
     `user_id` VARCHAR(36) PRIMARY KEY,
     `email` VARCHAR(225) UNIQUE NOT NULL,
     `password` VARCHAR(225) NOT NULL,
-    `is_verified` BOOLEAN NOT NULL
+    `is_verified` BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE TABLE `customer` (
     `customer_id` VARCHAR(36) PRIMARY KEY,
@@ -17,7 +17,6 @@ CREATE TABLE `seller` (
     `seller_id` VARCHAR(36) PRIMARY KEY,
     `user_id` VARCHAR(36) UNIQUE NOT NULL,
     `name` VARCHAR(225) NOT NULL,
-    `balance` FLOAT NOT NULL,
     `address` VARCHAR(225) NOT NULL,
     `date_of_birth` DATE NOT NULL,
     `phone_number` VARCHAR(20) UNIQUE NOT NULL,

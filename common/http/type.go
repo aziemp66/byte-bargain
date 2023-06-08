@@ -105,25 +105,26 @@ type (
 	}
 
 	Product struct {
-		ID          string   `json:"id"`
-		SellerID    string   `json:"seller_id"`
-		Name        string   `json:"name"`
-		Price       float64  `json:"price"`
-		Stock       int      `json:"stock"`
-		Category    string   `json:"category"`
-		Description string   `json:"description"`
-		Weight      float64  `json:"weight"`
-		Image       []string `json:"image"`
+		ID          string  `json:"id"`
+		SellerID    string  `json:"seller_id"`
+		SellerName  string  `json:"seller_name"`
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
+		Image       string  `json:"image"`
 	}
 
 	ProductRequest struct {
-		Name        string   `json:"name"`
-		Price       float64  `json:"price"`
-		Stock       int      `json:"stock"`
-		Category    string   `json:"category"`
-		Description string   `json:"description"`
-		Weight      float64  `json:"weight"`
-		Images      []string `json:"images"`
+		Name        string  `json:"name"`
+		Price       float64 `json:"price"`
+		Stock       int     `json:"stock"`
+		Category    string  `json:"category"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight"`
+		Image       string  `json:"image"`
 	}
 	ProductItem struct {
 		ProductID string `json:"product_id"`
@@ -168,6 +169,7 @@ type (
 		CartProductID string  `json:"cart_product_id"`
 		ProductID     string  `json:"product_id"`
 		CustomerID    string  `json:"customer_id"`
+		Name          string  `json:"name"`
 		Price         float64 `json:"price"`
 		Qty           int     `json:"qty"`
 	}

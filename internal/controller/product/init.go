@@ -1,6 +1,10 @@
 package product
 
 import (
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 
 	errorCommon "github.com/aziemp66/byte-bargain/common/error"
@@ -18,6 +22,18 @@ type ProductController struct {
 	SessionManager *sessionCommon.SessionManager
 }
 
+var (
+	BasePath = ""
+)
+
+func init() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	BasePath = wd + "/public/product_image"
+}
+
 func NewProductController(router *gin.RouterGroup, productUsecase productUseCase.Usecase, userUsecase userUsecase.Usecase, sessionManager *sessionCommon.SessionManager) {
 	productController := ProductController{
 		ProductUsecase: productUsecase,
@@ -27,14 +43,15 @@ func NewProductController(router *gin.RouterGroup, productUsecase productUseCase
 
 	router.Use(httpMiddleware.SessionAuthMiddleware(productController.SessionManager))
 
-	router.POST("/product", productController.AddProduct)
+	router.POST("/", productController.AddProduct)
+	router.POST("/image", productController.AddProductImage)
 	router.POST("/cart", productController.AddProductToCart)
 	router.POST("/order", productController.CreateOrder)
-	router.PUT("/product/:productID", productController.UpdateProduct)
+	router.PUT("/:productID", productController.UpdateProduct)
 	router.PUT("/order/status", productController.UpdateOrderStatus)
 	router.PUT("/cart/:productID/:qty", productController.UpdateProductQtyInCart)
 	router.DELETE("/cart/:productID", productController.DeleteProductInCart)
-	router.DELETE("/product/:productID", productController.DeleteProduct)
+	router.DELETE("/:productID", productController.DeleteProduct)
 }
 
 func (p *ProductController) CreateOrder(ctx *gin.Context) {
@@ -92,6 +109,38 @@ func (p *ProductController) AddProduct(ctx *gin.Context) {
 		Message: "Product added",
 	})
 }
+
+func (p *ProductController) AddProductImage(ctx *gin.Context) {
+	file, err := ctx.FormFile("image")
+
+	if err != nil {
+		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+		return
+	}
+
+	fileName, err := p.saveFile(ctx, file)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	imageID, err := p.ProductUsecase.InsertImage(ctx, fileName)
+
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(200, httpCommon.Response{
+		Code:    200,
+		Message: "Product image added",
+		Value: gin.H{
+			"image": imageID,
+		},
+	})
+}
+
 func (p *ProductController) AddProductToCart(ctx *gin.Context) {
 	var req httpCommon.AddCartProduct
 
@@ -165,6 +214,12 @@ func (p *ProductController) UpdateProduct(ctx *gin.Context) {
 func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
 	cartProductID := ctx.Param("productID")
 	qty := ctx.Param("qty")
+	quantity, err := strconv.Atoi(qty)
+
+	if err != nil {
+		ctx.Error(errorCommon.NewInvariantError(err.Error()))
+		return
+	}
 
 	cartProduct, err := p.ProductUsecase.GetCartProductByID(ctx, cartProductID)
 
@@ -185,7 +240,7 @@ func (p *ProductController) UpdateProductQtyInCart(ctx *gin.Context) {
 		return
 	}
 
-	err = p.ProductUsecase.UpdateCartProductQtyByID(ctx, cartProductID, qty)
+	err = p.ProductUsecase.UpdateCartProductQtyByID(ctx, cartProductID, quantity)
 
 	if err != nil {
 		ctx.Error(err)

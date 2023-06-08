@@ -25,6 +25,9 @@ func (u UserRepositoryImplementation) GetUserByID(ctx context.Context, tx *sql.T
 	err := tx.QueryRowContext(ctx, query, userID).Scan(&user.UserID, &user.Email, &user.Password)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return user, err
+		}
 		return user, errorCommon.NewInvariantError("user not found")
 	}
 
@@ -39,6 +42,9 @@ func (u UserRepositoryImplementation) GetUserByEmail(ctx context.Context, tx *sq
 	err := tx.QueryRowContext(ctx, query, email).Scan(&user.UserID, &user.Email, &user.Password)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return user, err
+		}
 		return user, errorCommon.NewInvariantError("user not found")
 	}
 

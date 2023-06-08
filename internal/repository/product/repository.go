@@ -23,7 +23,8 @@ type Repository interface {
 	GetCartProductByCustomerID(ctx context.Context, tx *sql.Tx, customerID string) ([]productDomain.CartProduct, error)
 	GetAllOrderProduct(ctx context.Context, tx *sql.Tx) ([]productDomain.OrderProduct, error)
 	GetPaymentByID(ctx context.Context, tx *sql.Tx, paymentID string) (productDomain.Payment, error)
-	InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) error
+	GetImageByProductID(ctx context.Context, tx *sql.Tx, productID string) (productDomain.ProductImage, error)
+	InsertProduct(ctx context.Context, tx *sql.Tx, sellerID, productName string, price float64, stock int, category, description string, weight float64) (productID string, err error)
 	InsertOrder(ctx context.Context, tx *sql.Tx, customerID, sellerID string, orderDate time.Time, status string) error
 	InsertOrderProduct(ctx context.Context, tx *sql.Tx, orderID, productID string, quantity int) error
 	InsertCartProduct(ctx context.Context, tx *sql.Tx, customerID, productID string, quantity int) error
@@ -31,8 +32,8 @@ type Repository interface {
 	InsertImage(ctx context.Context, tx *sql.Tx, image string) (imageID string, err error)
 	UpdateProductByID(ctx context.Context, tx *sql.Tx, productID, productName string, price float64, stock int, category, description string, weight float64) error
 	UpdateOrderStatusByID(ctx context.Context, tx *sql.Tx, orderID, status string) error
-	UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID, quantity string) error
-	UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID, quantity string) error
+	UpdateOrderProductQtyByID(ctx context.Context, tx *sql.Tx, orderProductID string, quantity int) error
+	UpdateCartProductQtyByID(ctx context.Context, tx *sql.Tx, cartProductID string, quantity int) error
 	UpdateLinkImageByID(ctx context.Context, tx *sql.Tx, imageID, productID string) error
 	DeleteProductByID(ctx context.Context, tx *sql.Tx, productID string) error
 	DeleteOrderProductByID(ctx context.Context, tx *sql.Tx, orderProductID string) error

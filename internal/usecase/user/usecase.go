@@ -10,6 +10,8 @@ type Usecase interface {
 	Login(ctx context.Context, login httpCommon.Login) (userID string, err error)
 	RegisterCustomer(ctx context.Context, registerCustomer httpCommon.RegisterCustomer) error
 	RegisterSeller(ctx context.Context, registerSeller httpCommon.RegisterSeller) error
+	GetCustomerByID(ctx context.Context, customerID string) (httpCommon.Customer, error)
+	GetSellerByID(ctx context.Context, sellerID string) (httpCommon.Seller, error)
 	GetCustomerByUserID(ctx context.Context, userID string) (httpCommon.Customer, error)
 	GetSellerByUserID(ctx context.Context, userID string) (httpCommon.Seller, error)
 	ForgotPassword(ctx context.Context, forgotPassword httpCommon.ForgotPassword) error

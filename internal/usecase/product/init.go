@@ -87,6 +87,12 @@ func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx context.Context
 			return nil, err
 		}
 
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
+
 		recommenddedProducts = append(recommenddedProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -96,6 +102,7 @@ func (p *ProductUsecaseImplementation) GetRecommendedProduct(ctx context.Context
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -120,6 +127,11 @@ func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx context.Context, s
 	var searchedProducts []httpCommon.Product
 
 	for _, product := range products {
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
 		searchedProducts = append(searchedProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -129,6 +141,7 @@ func (p *ProductUsecaseImplementation) GetSearchedProduct(ctx context.Context, s
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -153,6 +166,12 @@ func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx context.Context,
 	var sellerProducts []httpCommon.Product
 
 	for _, product := range products {
+		image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+		if err != nil {
+			return nil, err
+		}
+
 		sellerProducts = append(sellerProducts, httpCommon.Product{
 			ID:          product.ProductID,
 			SellerID:    product.SellerID,
@@ -162,6 +181,7 @@ func (p *ProductUsecaseImplementation) GetProductBySellerID(ctx context.Context,
 			Category:    product.Category,
 			Description: product.Description,
 			Weight:      product.Weight,
+			Image:       "/product_image/" + image.Image,
 		})
 	}
 
@@ -183,6 +203,12 @@ func (p *ProductUsecaseImplementation) GetProductByID(ctx context.Context, produ
 		return httpCommon.Product{}, err
 	}
 
+	image, err := p.ProductRepository.GetImageByProductID(ctx, tx, product.ProductID)
+
+	if err != nil {
+		return httpCommon.Product{}, err
+	}
+
 	return httpCommon.Product{
 		ID:          product.ProductID,
 		SellerID:    product.SellerID,
@@ -192,6 +218,7 @@ func (p *ProductUsecaseImplementation) GetProductByID(ctx context.Context, produ
 		Category:    product.Category,
 		Description: product.Description,
 		Weight:      product.Weight,
+		Image:       "/product_image/" + image.Image,
 	}, nil
 }
 
@@ -414,6 +441,7 @@ func (p *ProductUsecaseImplementation) GetCustomerCart(ctx context.Context, cust
 		products = append(products, httpCommon.CartProduct{
 			CartProductID: v.CartProductID,
 			ProductID:     v.ProductID,
+			Name:          product.Name,
 			Price:         product.Price,
 			Qty:           v.Quantity,
 		})
@@ -458,7 +486,13 @@ func (p *ProductUsecaseImplementation) InsertProduct(ctx context.Context, seller
 
 	defer dbCommon.CommitOrRollback(tx)
 
-	err = p.ProductRepository.InsertProduct(ctx, tx, sellerID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+	productID, err := p.ProductRepository.InsertProduct(ctx, tx, sellerID, product.Name, product.Price, product.Stock, product.Category, product.Description, product.Weight)
+
+	if err != nil {
+		return err
+	}
+
+	err = p.ProductRepository.UpdateLinkImageByID(ctx, tx, product.Image, productID)
 
 	if err != nil {
 		return err
@@ -511,6 +545,25 @@ func (p *ProductUsecaseImplementation) InsertCartProduct(ctx context.Context, cu
 	}
 
 	defer dbCommon.CommitOrRollback(tx)
+
+	cartProducts, err := p.ProductRepository.GetCartProductByCustomerID(ctx, tx, customerID)
+
+	if err != nil {
+		return err
+	}
+
+	for _, v := range cartProducts {
+		if v.ProductID == cartProduct.ProductID {
+			err = p.ProductRepository.UpdateCartProductQtyByID(ctx, tx, v.CartProductID, v.Quantity+cartProduct.Qty)
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+	}
 
 	err = p.ProductRepository.InsertCartProduct(ctx, tx, customerID, cartProduct.ProductID, cartProduct.Qty)
 
@@ -612,7 +665,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderStatusByID(ctx context.Context
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Context, orderProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Context, orderProductID string, quantity int) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
@@ -630,7 +683,7 @@ func (p *ProductUsecaseImplementation) UpdateOrderProductQtyByID(ctx context.Con
 	return nil
 }
 
-func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx context.Context, cartProductID, quantity string) error {
+func (p *ProductUsecaseImplementation) UpdateCartProductQtyByID(ctx context.Context, cartProductID string, quantity int) error {
 	tx, err := p.DB.Begin()
 
 	if err != nil {
